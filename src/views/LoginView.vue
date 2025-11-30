@@ -56,9 +56,16 @@ const handleLogin = async (data: LoginData) => {
 
     if (response.ok) {
       const result = await response.json()
+      
+      console.log('Respuesta completa del login:', result)
 
-      // Guardar token en localStorage o store
-      localStorage.setItem('authToken', result.token)
+      // Guardar tokens según la especificación de la API
+      if (result.access_token) {
+        localStorage.setItem('authToken', result.access_token)
+      }
+      if (result.refresh_token) {
+        localStorage.setItem('refreshToken', result.refresh_token)
+      }
 
       toast.add({
         severity: 'success',
@@ -100,6 +107,9 @@ const handleRegister = async (data: RegisterData) => {
     })
 
     if (response.ok) {
+      const result = await response.json()
+      console.log('Respuesta completa del registro:', result)
+      
       toast.add({
         severity: 'success',
         summary: 'Éxito',
