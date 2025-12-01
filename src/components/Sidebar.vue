@@ -130,7 +130,7 @@ const handleLogout = () => {
 .menu-label,
 .user-name,
 .user-email {
-  font-family: var(--font-family);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -141,17 +141,17 @@ const handleLogout = () => {
   left: 0;
   top: 0;
   height: 100vh;
-  background-color: var(--surface-0);
-  box-shadow: var(--shadow-2);
+  background-color: #ffffff;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
   width: 70px;
   transition: width 0.3s ease;
   z-index: 1000;
   overflow: hidden;
-  border-top-right-radius: var(--border-radius);
-  border-bottom-right-radius: var(--border-radius);
-  border: 1px solid var(--surface-border);
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+  border: 1px solid #e5e7eb;
   border-left: none;
 }
 
@@ -165,20 +165,20 @@ const handleLogout = () => {
   align-items: center;
   gap: 0.75rem;
   padding: 1.5rem 1.1rem;
-  border-bottom: 1px solid var(--surface-border);
+  border-bottom: 1px solid #e5e7eb;
   min-height: 70px;
 }
 
 .logo-icon {
   font-size: 1.75rem;
-  color: var(--primary-color);
+  color: #10b981;
   min-width: 1.75rem;
 }
 
 .logo-text {
   font-size: 1.2rem;
   font-weight: 700;
-  color: var(--text-color);
+  color: #111827;
   white-space: nowrap;
   overflow: hidden;
 }
@@ -198,8 +198,8 @@ const handleLogout = () => {
   align-items: center;
   gap: 1rem;
   padding: 0.875rem 1rem;
-  border-radius: var(--border-radius);
-  color: var(--text-color-secondary);
+  border-radius: 8px;
+  color: #6b7280;
   text-decoration: none;
   transition: all 0.2s ease;
   cursor: pointer;
@@ -207,37 +207,37 @@ const handleLogout = () => {
 }
 
 .sidebar-item:hover {
-  background-color: var(--surface-100);
-  color: var(--text-color);
+  background-color: #f3f4f6;
+  color: #374151;
 }
 
 .sidebar-item.active {
-  background-color: var(--primary-color);
-  color: var(--primary-color-text);
-  box-shadow: var(--shadow-3);
+  background-color: #10b981;
+  color: #ffffff;
+  box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3), 0 2px 4px -2px rgba(16, 185, 129, 0.3);
 }
 
 .sidebar-item.active .menu-icon {
-  color: var(--primary-color-text);
+  color: #ffffff;
 }
 
 .sidebar-item.active .menu-label {
-  color: var(--primary-color-text);
+  color: #ffffff;
 }
 
 .menu-icon {
   font-size: 1.25rem;
   min-width: 1.25rem;
-  color: var(--text-color-secondary);
+  color: #6b7280;
   transition: color 0.2s ease;
 }
 
 .sidebar-item:hover .menu-icon {
-  color: var(--text-color);
+  color: #374151;
 }
 
 .sidebar-item.active:hover .menu-icon {
-  color: var(--primary-color-text);
+  color: #ffffff;
 }
 
 .menu-label {
@@ -245,11 +245,11 @@ const handleLogout = () => {
   font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
-  color: var(--text-color-secondary);
+  color: #6b7280;
 }
 
 .sidebar-item:hover .menu-label {
-  color: var(--text-color);
+  color: #374151;
 }
 
 /* FOOTER */
@@ -258,7 +258,7 @@ const handleLogout = () => {
   flex-direction: column;
   gap: 0.75rem;
   padding: 1rem;
-  border-top: 1px solid var(--surface-border);
+  border-top: 1px solid #e5e7eb;
 }
 
 .user-info {
@@ -272,8 +272,8 @@ const handleLogout = () => {
   flex-shrink: 0;
   width: 2.25rem !important;
   height: 2.25rem !important;
-  background-color: var(--primary-color) !important;
-  color: var(--primary-color-text) !important;
+  background-color: #10b981 !important;
+  color: #ffffff !important;
 }
 
 .user-details {
@@ -286,7 +286,7 @@ const handleLogout = () => {
 .user-name {
   font-size: 0.875rem;
   font-weight: 600;
-  color: var(--text-color);
+  color: #111827;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -294,7 +294,7 @@ const handleLogout = () => {
 
 .user-email {
   font-size: 0.75rem;
-  color: var(--text-color-secondary);
+  color: #6b7280;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -315,11 +315,11 @@ const handleLogout = () => {
 }
 
 .sidebar-nav::-webkit-scrollbar-thumb {
-  background: var(--surface-300);
+  background: #d1d5db;
   border-radius: 4px;
 }
 
 .sidebar-nav::-webkit-scrollbar-thumb:hover {
-  background: var(--surface-400);
+  background: #9ca3af;
 }
 </style>
