@@ -49,10 +49,11 @@ const checkAuth = () => {
   }
   
   // Verificar si el token sigue siendo válido
-  const { isTokenValid, clearAuthAndRedirect } = require('../utils/auth')
-  if (!isTokenValid(token)) {
-    clearAuthAndRedirect()
-  }
+  import('../utils/auth').then(({ isTokenValid, clearAuthAndRedirect }) => {
+    if (!isTokenValid(token)) {
+      clearAuthAndRedirect()
+    }
+  })
 }
 
 // Manejar upload de CV
