@@ -141,22 +141,25 @@ body {
 
 .mobile-menu-btn {
   position: fixed;
-  top: 1rem;
-  left: 1rem;
+  bottom: 2rem;
+  right: 2rem;
   z-index: 10000;
   border-radius: 50%;
-  width: 3rem;
-  height: 3rem;
+  width: 3.5rem;
+  height: 3.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 @media (max-width: 768px) {
   .main-content {
-    padding: 4rem 1rem 1rem 1rem;
+    padding: 1rem;
     margin-left: 0 !important;
+    padding-bottom: 5rem;
   }
   
   .main-content:not(.with-sidebar) {
     padding: 0;
+    padding-bottom: 5rem;
   }
 }
 </style>
