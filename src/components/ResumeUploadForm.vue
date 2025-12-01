@@ -42,7 +42,9 @@
             rows="4"
             placeholder="Ej: Extraer experiencia laboral de los últimos 5 años"
             class="instructions-textarea"
+            :maxlength="500"
           />
+          <small class="char-counter">{{ form.instructions.length }}/500 caracteres</small>
         </div>
 
         <Button
@@ -189,5 +191,11 @@ const handleSubmit = async () => {
 
 .p-error {
   color: var(--red-500);
+}
+
+.char-counter {
+  color: var(--text-color-secondary);
+  font-size: 0.75rem;
+  text-align: right;
 }
 </style>
