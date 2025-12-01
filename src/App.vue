@@ -70,26 +70,38 @@ body {
 }
 
 #app {
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
 }
 </style>
 
 <style scoped>
 .app-container {
-  min-height: 100vh;
+  height: 100vh;
   background-color: #f9fafb;
+  overflow: hidden;
 }
 
 .main-content {
-  min-height: 100vh;
+  height: 100vh;
   padding: 2rem;
   transition: margin-left 0.3s ease;
+  overflow-y: auto;
+}
+
+.main-content:not(.with-sidebar) {
+  padding: 0;
+  overflow: hidden;
 }
 
 @media (max-width: 768px) {
   .main-content {
     padding: 1rem;
     margin-left: 0 !important;
+  }
+  
+  .main-content:not(.with-sidebar) {
+    padding: 0;
   }
 }
 </style>
