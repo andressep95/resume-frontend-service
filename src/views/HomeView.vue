@@ -45,6 +45,13 @@ const checkAuth = () => {
   const token = localStorage.getItem('authToken')
   if (!token) {
     router.push('/login')
+    return
+  }
+  
+  // Verificar si el token sigue siendo válido
+  const { isTokenValid, clearAuthAndRedirect } = require('../utils/auth')
+  if (!isTokenValid(token)) {
+    clearAuthAndRedirect()
   }
 }
 

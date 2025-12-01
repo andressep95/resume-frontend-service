@@ -20,16 +20,32 @@ const router = createRouter({
 })
 
 // Guard de navegación para rutas protegidas
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   const token = localStorage.getItem('authToken')
 
-  if (to.meta.requiresAuth && !token) {
-    next('/login')
-  } else if (to.name === 'login' && token) {
-    next('/')
-  } else {
-    next()
+  if (to.meta.requiresAuth) {
+    if (!token) {
+      next('/login')
+      return
+    }
+    
+    // Verificar si el token es válido
+    const { isTokenValid, clearAuthAndRedirect } = await import('../utils/auth')
+    if (!isTokenValid(token)) {
+      clearAuthAndRedirect()
+      return
+    }
   }
+  
+  if (to.name === 'login' && token) {
+    const { isTokenValid } = await import('../utils/auth')
+    if (isTokenValid(token)) {
+      next('/')
+      return
+    }
+  }
+  
+  next()
 })
 
 export default router
