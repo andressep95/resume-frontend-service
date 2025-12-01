@@ -1,6 +1,26 @@
 <template>
   <div class="layout-wrapper">
-    <Sidebar v-model:visible="sidebarVisible" class="layout-sidebar">
+    <!-- Desktop Sidebar -->
+    <div class="desktop-sidebar">
+      <div class="sidebar-header">
+        <h3>CV Processor</h3>
+      </div>
+      
+      <Menu :model="menuItems" class="sidebar-menu" />
+      
+      <div class="sidebar-footer">
+        <Button
+          icon="pi pi-sign-out"
+          label="Cerrar Sesión"
+          severity="secondary"
+          @click="logout"
+          class="logout-button"
+        />
+      </div>
+    </div>
+
+    <!-- Mobile Sidebar -->
+    <Sidebar v-model:visible="sidebarVisible" class="mobile-sidebar">
       <template #header>
         <div class="sidebar-header">
           <h3>CV Processor</h3>
@@ -110,7 +130,16 @@ const logout = () => {
   min-height: 100vh;
 }
 
-.layout-sidebar {
+.desktop-sidebar {
+  width: 280px;
+  background: var(--surface-card);
+  border-right: 1px solid var(--surface-border);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.mobile-sidebar {
   width: 280px;
 }
 
@@ -127,11 +156,13 @@ const logout = () => {
 .sidebar-menu {
   border: none;
   width: 100%;
+  flex: 1;
 }
 
 .sidebar-footer {
   padding: 1rem;
   border-top: 1px solid var(--surface-border);
+  margin-top: auto;
 }
 
 .logout-button {
@@ -171,9 +202,12 @@ const logout = () => {
 }
 
 @media (min-width: 768px) {
-  .layout-sidebar {
-    position: relative;
-    transform: translateX(0) !important;
+  .desktop-sidebar {
+    display: flex;
+  }
+  
+  .mobile-sidebar {
+    display: none;
   }
   
   .menu-toggle {
@@ -183,15 +217,15 @@ const logout = () => {
   .desktop-logout {
     display: inline-flex;
   }
-  
-  .sidebar-footer {
-    display: none;
-  }
 }
 
 @media (max-width: 767px) {
-  .layout-sidebar {
-    position: fixed;
+  .desktop-sidebar {
+    display: none;
+  }
+  
+  .mobile-sidebar {
+    display: block;
   }
 }
 </style>
