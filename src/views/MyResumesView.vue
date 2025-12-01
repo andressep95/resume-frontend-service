@@ -4,15 +4,10 @@
       <template #title>
         <div class="card-header">
           <h3>Mis CVs Procesados</h3>
-          <Button
-            icon="pi pi-refresh"
-            label="Actualizar"
-            @click="loadResumes"
-            :loading="loading"
-          />
+          <Button icon="pi pi-refresh" label="Actualizar" @click="loadResumes" :loading="loading" />
         </div>
       </template>
-      
+
       <template #content>
         <DataTable
           :value="resumes"
@@ -28,7 +23,7 @@
               <span class="resume-id">{{ data.id.substring(0, 8) }}...</span>
             </template>
           </Column>
-          
+
           <Column field="filename" header="Archivo" sortable>
             <template #body="{ data }">
               <div class="filename-cell">
@@ -39,7 +34,7 @@
               </div>
             </template>
           </Column>
-          
+
           <Column field="status" header="Estado" sortable>
             <template #body="{ data }">
               <Tag
@@ -48,19 +43,19 @@
               />
             </template>
           </Column>
-          
+
           <Column field="language" header="Idioma" sortable>
             <template #body="{ data }">
               <span class="language-badge">{{ getLanguageLabel(data.language) }}</span>
             </template>
           </Column>
-          
+
           <Column field="created_at" header="Fecha" sortable>
             <template #body="{ data }">
               <span>{{ formatDate(data.created_at) }}</span>
             </template>
           </Column>
-          
+
           <Column header="Acciones">
             <template #body="{ data }">
               <div class="action-buttons">
@@ -83,20 +78,16 @@
             </template>
           </Column>
         </DataTable>
-        
+
         <div v-if="!loading && resumes.length === 0" class="empty-state">
           <i class="pi pi-inbox empty-icon"></i>
           <h4>No hay CVs procesados</h4>
           <p>Sube tu primer CV para comenzar</p>
-          <Button
-            label="Procesar CV"
-            icon="pi pi-upload"
-            @click="$router.push('/')"
-          />
+          <Button label="Procesar CV" icon="pi pi-upload" @click="$router.push('/')" />
         </div>
       </template>
     </Card>
-    
+
     <Toast />
   </div>
 </template>
@@ -123,26 +114,31 @@ const loadResumes = async () => {
     router.push('/login')
     return
   }
-  
+
   loading.value = true
   try {
-    const apiUrl = import.meta.env.VITE_RESUME_API_URL || 'https://api.cloudcentinel.com/resume/api/v1/resume'
+    const apiUrl =
+      import.meta.env.VITE_RESUME_API_URL || 'https://api.cloudcentinel.com/resume/api/v1/resume'
     const response = await fetch(`${apiUrl}/my-resumes`, {
       headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
     })
-    
+
     if (response.ok) {
       const data = await response.json()
+      console.log('Respuesta de la API:', data)
       resumes.value = data.resumes || []
     } else {
+      const errorData = await response.json().catch(() => ({ message: 'Error desconocido' }))
+      console.error('Error del servidor:', response.status, errorData)
+      
       toast.add({
         severity: 'error',
-        summary: 'Error',
-        detail: 'Error al cargar los CVs',
-        life: 5000
+        summary: `Error ${response.status}`,
+        detail: errorData.message || 'Error al cargar los CVs',
+        life: 5000,
       })
     }
   } catch (error) {
@@ -151,7 +147,7 @@ const loadResumes = async () => {
       severity: 'error',
       summary: 'Error',
       detail: 'Error de conexión',
-      life: 5000
+      life: 5000,
     })
   } finally {
     loading.value = false
@@ -168,36 +164,36 @@ const downloadResume = (id: string) => {
     severity: 'info',
     summary: 'Información',
     detail: 'Función de descarga en desarrollo',
-    life: 3000
+    life: 3000,
   })
 }
 
 const getStatusLabel = (status: string) => {
   const labels: Record<string, string> = {
-    'pending': 'Pendiente',
-    'processing': 'Procesando',
-    'completed': 'Completado',
-    'failed': 'Fallido'
+    pending: 'Pendiente',
+    processing: 'Procesando',
+    completed: 'Completado',
+    failed: 'Fallido',
   }
   return labels[status] || status
 }
 
 const getStatusSeverity = (status: string) => {
   const severities: Record<string, string> = {
-    'pending': 'warning',
-    'processing': 'info',
-    'completed': 'success',
-    'failed': 'danger'
+    pending: 'warning',
+    processing: 'info',
+    completed: 'success',
+    failed: 'danger',
   }
   return severities[status] || 'secondary'
 }
 
 const getLanguageLabel = (language: string) => {
   const labels: Record<string, string> = {
-    'es': 'Español',
-    'en': 'English',
-    'pt': 'Português',
-    'fr': 'Français'
+    es: 'Español',
+    en: 'English',
+    pt: 'Português',
+    fr: 'Français',
   }
   return labels[language] || language
 }
@@ -209,7 +205,7 @@ const formatDate = (dateString: string) => {
     month: 'short',
     day: 'numeric',
     hour: '2-digit',
-    minute: '2-digit'
+    minute: '2-digit',
   })
 }
 
