@@ -16,250 +16,107 @@
     </div>
 
     <div v-else-if="resume" class="resume-content">
-      <Card class="resume-info-card">
-        <template #title>
-          <div class="resume-header">
-            <h2>{{ resume.original_filename || 'CV Sin Nombre' }}</h2>
-            <Tag
-              :value="getStatusLabel(resume.status)"
-              :severity="getStatusSeverity(resume.status)"
-              class="status-tag"
-            />
+      <div class="harvard-cv-full">
+        <div class="cv-container">
+          <!-- Header -->
+          <div class="cv-header">
+            <h1 class="cv-name">{{ resume.structured_data?.header?.name || 'Nombre no disponible' }}</h1>
+            <div class="cv-contact">
+              <span v-if="resume.structured_data?.header?.contact?.email">{{ resume.structured_data.header.contact.email }}</span>
+              <span v-if="resume.structured_data?.header?.contact?.phone"> • {{ resume.structured_data.header.contact.phone }}</span>
+              <span v-if="resume.structured_data?.header?.contact?.address"> • {{ resume.structured_data.header.contact.address }}</span>
+            </div>
           </div>
-        </template>
-        
-        <template #content>
-          <div class="resume-metadata">
-            <div class="metadata-grid">
-              <div class="metadata-item">
-                <label>ID de Solicitud:</label>
-                <span class="monospace">{{ resume.request_id }}</span>
-              </div>
-              <div class="metadata-item">
-                <label>Idioma:</label>
-                <span>{{ getLanguageLabel(resume.language) }}</span>
-              </div>
-              <div class="metadata-item">
-                <label>Tamaño del Archivo:</label>
-                <span>{{ formatFileSize(resume.file_size_bytes) }}</span>
-              </div>
-              <div class="metadata-item">
-                <label>Fecha de Procesamiento:</label>
-                <span>{{ formatDate(resume.created_at) }}</span>
-              </div>
-              <div class="metadata-item" v-if="resume.completed_at">
-                <label>Completado:</label>
-                <span>{{ formatDate(resume.completed_at) }}</span>
-              </div>
-              <div class="metadata-item" v-if="resume.processing_time_ms">
-                <label>Tiempo de Procesamiento:</label>
-                <span>{{ resume.processing_time_ms }}ms</span>
-              </div>
-              <div class="metadata-item" v-if="resume.instructions">
-                <label>Instrucciones:</label>
-                <span>{{ resume.instructions }}</span>
+
+          <!-- Education -->
+          <div v-if="resume.structured_data?.education?.length" class="cv-section">
+            <h2 class="cv-section-title">Educación</h2>
+            <div class="cv-divider"></div>
+            <div v-for="(edu, index) in resume.structured_data.education" :key="index" class="cv-education">
+              <div class="cv-edu-header">
+                <div class="cv-edu-left">
+                  <h3>{{ edu.institution || 'Institución no especificada' }}</h3>
+                  <h4>{{ edu.degree || 'Título no especificado' }}</h4>
+                </div>
+                <div class="cv-edu-right">
+                  {{ edu.period?.end || 'Presente' }}
+                </div>
               </div>
             </div>
           </div>
-        </template>
-      </Card>
 
-      <Card v-if="resume.structured_data" class="extracted-data-card">
-        <template #title>
-          <h3>Datos Extraídos</h3>
-        </template>
-        
-        <template #content>
-          <TabView class="data-tabs">
-            <TabPanel value="0" header="Información Personal">
-              <div class="personal-info">
-                <div class="info-grid">
-                  <div class="info-item" v-if="resume.structured_data.header?.name">
-                    <label>Nombre:</label>
-                    <span>{{ resume.structured_data.header.name }}</span>
-                  </div>
-                  <div class="info-item" v-if="resume.structured_data.header?.contact?.email">
-                    <label>Email:</label>
-                    <span>{{ resume.structured_data.header.contact.email }}</span>
-                  </div>
-                  <div class="info-item" v-if="resume.structured_data.header?.contact?.phone">
-                    <label>Teléfono:</label>
-                    <span>{{ resume.structured_data.header.contact.phone }}</span>
-                  </div>
+          <!-- Technical Skills -->
+          <div v-if="resume.structured_data?.technicalSkills?.skills?.length" class="cv-section">
+            <h2 class="cv-section-title">Habilidades Técnicas</h2>
+            <div class="cv-divider"></div>
+            <div class="cv-skills-grid">
+              <span v-for="(skill, index) in resume.structured_data.technicalSkills.skills" :key="index" class="cv-skill-item">
+                • {{ skill }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Professional Experience -->
+          <div v-if="resume.structured_data?.professionalExperience?.length" class="cv-section">
+            <h2 class="cv-section-title">Experiencia Profesional</h2>
+            <div class="cv-divider"></div>
+            <div v-for="(exp, index) in resume.structured_data.professionalExperience" :key="index" class="cv-experience">
+              <div class="cv-exp-header">
+                <div class="cv-exp-left">
+                  <h3>{{ exp.position || 'Posición no especificada' }}</h3>
+                </div>
+                <div class="cv-exp-right">
+                  {{ exp.period?.start || 'Fecha inicio' }} - {{ exp.period?.end || 'Presente' }}
                 </div>
               </div>
-            </TabPanel>
-            
-            <TabPanel value="1" header="Experiencia Laboral">
-              <div class="experience-section">
-                <div v-if="resume.structured_data.professionalExperience?.length" class="experience-list">
-                  <Card v-for="(exp, index) in resume.structured_data.professionalExperience" :key="index" class="experience-card">
-                    <template #content>
-                      <div class="experience-item">
-                        <h4>{{ exp.position || 'Posición no especificada' }}</h4>
-                        <p class="company">{{ exp.company || 'Empresa no especificada' }}</p>
-                        <p class="period" v-if="exp.period">
-                          {{ exp.period.start || 'Fecha inicio no especificada' }} - 
-                          {{ exp.period.end || 'Presente' }}
-                        </p>
-                        <div class="description" v-if="exp.responsibilities?.length">
-                          <ul>
-                            <li v-for="(resp, i) in exp.responsibilities" :key="i">{{ resp }}</li>
-                          </ul>
-                        </div>
-                      </div>
-                    </template>
-                  </Card>
+              <ul v-if="exp.responsibilities?.length" class="cv-responsibilities">
+                <li v-for="(resp, i) in exp.responsibilities" :key="i">{{ resp }}</li>
+              </ul>
+              <div class="cv-company">{{ exp.company || 'Empresa no especificada' }}</div>
+            </div>
+          </div>
+
+          <!-- Certifications -->
+          <div v-if="resume.structured_data?.certifications?.length" class="cv-section">
+            <h2 class="cv-section-title">Certificaciones</h2>
+            <div class="cv-divider"></div>
+            <div v-for="(cert, index) in resume.structured_data.certifications" :key="index" class="cv-certification">
+              <div class="cv-cert-header">
+                <div class="cv-cert-left">
+                  <h3>{{ cert.name || 'Certificación' }}</h3>
+                  <span v-if="cert.issuer" class="cv-cert-issuer">{{ cert.issuer }}</span>
                 </div>
-                <div v-else class="no-data">
-                  <p>No se encontró información de experiencia laboral</p>
+                <div class="cv-cert-right">
+                  {{ cert.date || 'Fecha no especificada' }}
                 </div>
               </div>
-            </TabPanel>
-            
-            <TabPanel value="2" header="Educación">
-              <div class="education-section">
-                <div v-if="resume.structured_data.education?.length" class="education-list">
-                  <Card v-for="(edu, index) in resume.structured_data.education" :key="index" class="education-card">
-                    <template #content>
-                      <div class="education-item">
-                        <h4>{{ edu.degree || 'Título no especificado' }}</h4>
-                        <p class="institution">{{ edu.institution || 'Institución no especificada' }}</p>
-                        <p class="period" v-if="edu.period">
-                          {{ edu.period.start || 'Fecha inicio no especificada' }} - 
-                          {{ edu.period.end || 'Presente' }}
-                        </p>
-                      </div>
-                    </template>
-                  </Card>
-                </div>
-                <div v-else class="no-data">
-                  <p>No se encontró información educativa</p>
-                </div>
+            </div>
+          </div>
+
+          <!-- Projects -->
+          <div v-if="resume.structured_data?.projects?.length" class="cv-section">
+            <h2 class="cv-section-title">Proyectos</h2>
+            <div class="cv-divider"></div>
+            <div v-for="(project, index) in resume.structured_data.projects" :key="index" class="cv-project">
+              <h3>{{ project.name || 'Proyecto' }}</h3>
+              <p v-if="project.description" class="cv-project-description">{{ project.description }}</p>
+              <p v-if="project.technologies" class="cv-project-tech">Technologies: {{ project.technologies }}</p>
+            </div>
+          </div>
+
+          <!-- Languages -->
+          <div v-if="resume.structured_data?.languages?.length" class="cv-section">
+            <h2 class="cv-section-title">Idiomas</h2>
+            <div class="cv-divider"></div>
+            <div class="cv-languages">
+              <div v-for="(lang, index) in resume.structured_data.languages" :key="index" class="cv-language">
+                <strong>{{ lang.language || 'Idioma' }}</strong>
+                <span v-if="lang.proficiency"> - {{ lang.proficiency }}</span>
               </div>
-            </TabPanel>
-            
-            <TabPanel value="3" header="Habilidades">
-              <div class="skills-section">
-                <div v-if="resume.structured_data.technicalSkills?.skills?.length" class="skills-list">
-                  <Chip
-                    v-for="(skill, index) in resume.structured_data.technicalSkills.skills"
-                    :key="index"
-                    :label="skill"
-                    class="skill-chip"
-                  />
-                </div>
-                <div v-else class="no-data">
-                  <p>No se encontraron habilidades</p>
-                </div>
-              </div>
-            </TabPanel>
-            
-            <TabPanel value="4" header="CV Harvard">
-              <div class="harvard-cv">
-                <div class="cv-container">
-                  <!-- Header -->
-                  <div class="cv-header">
-                    <h1 class="cv-name">{{ resume.structured_data.header?.name || 'Nombre no disponible' }}</h1>
-                    <div class="cv-contact">
-                      <span v-if="resume.structured_data.header?.contact?.email">
-                        <i class="pi pi-envelope"></i> {{ resume.structured_data.header.contact.email }}
-                      </span>
-                      <span v-if="resume.structured_data.header?.contact?.phone">
-                        <i class="pi pi-phone"></i> {{ resume.structured_data.header.contact.phone }}
-                      </span>
-                      <span v-if="resume.structured_data.header?.contact?.address">
-                        <i class="pi pi-map-marker"></i> {{ resume.structured_data.header.contact.address }}
-                      </span>
-                    </div>
-                  </div>
-
-                  <!-- Professional Summary -->
-                  <div v-if="resume.structured_data.summary" class="cv-section">
-                    <h2 class="cv-section-title">RESUMEN PROFESIONAL</h2>
-                    <p class="cv-summary">{{ resume.structured_data.summary }}</p>
-                  </div>
-
-                  <!-- Professional Experience -->
-                  <div v-if="resume.structured_data.professionalExperience?.length" class="cv-section">
-                    <h2 class="cv-section-title">EXPERIENCIA PROFESIONAL</h2>
-                    <div v-for="(exp, index) in resume.structured_data.professionalExperience" :key="index" class="cv-experience">
-                      <div class="cv-exp-header">
-                        <div class="cv-exp-title">
-                          <h3>{{ exp.position || 'Posición no especificada' }}</h3>
-                          <h4>{{ exp.company || 'Empresa no especificada' }}</h4>
-                        </div>
-                        <div class="cv-exp-period">
-                          {{ exp.period?.start || 'Fecha inicio' }} - {{ exp.period?.end || 'Presente' }}
-                        </div>
-                      </div>
-                      <ul v-if="exp.responsibilities?.length" class="cv-responsibilities">
-                        <li v-for="(resp, i) in exp.responsibilities" :key="i">{{ resp }}</li>
-                      </ul>
-                    </div>
-                  </div>
-
-                  <!-- Education -->
-                  <div v-if="resume.structured_data.education?.length" class="cv-section">
-                    <h2 class="cv-section-title">EDUCACIÓN</h2>
-                    <div v-for="(edu, index) in resume.structured_data.education" :key="index" class="cv-education">
-                      <div class="cv-edu-header">
-                        <div class="cv-edu-title">
-                          <h3>{{ edu.degree || 'Título no especificado' }}</h3>
-                          <h4>{{ edu.institution || 'Institución no especificada' }}</h4>
-                        </div>
-                        <div class="cv-edu-period">
-                          {{ edu.period?.start || 'Fecha inicio' }} - {{ edu.period?.end || 'Presente' }}
-                        </div>
-                      </div>
-                      <p v-if="edu.description" class="cv-edu-description">{{ edu.description }}</p>
-                    </div>
-                  </div>
-
-                  <!-- Technical Skills -->
-                  <div v-if="resume.structured_data.technicalSkills?.skills?.length" class="cv-section">
-                    <h2 class="cv-section-title">HABILIDADES TÉCNICAS</h2>
-                    <div class="cv-skills">
-                      <span v-for="(skill, index) in resume.structured_data.technicalSkills.skills" :key="index" class="cv-skill">
-                        {{ skill }}<span v-if="index < resume.structured_data.technicalSkills.skills.length - 1">, </span>
-                      </span>
-                    </div>
-                  </div>
-
-                  <!-- Languages -->
-                  <div v-if="resume.structured_data.languages?.length" class="cv-section">
-                    <h2 class="cv-section-title">IDIOMAS</h2>
-                    <div class="cv-languages">
-                      <div v-for="(lang, index) in resume.structured_data.languages" :key="index" class="cv-language">
-                        <strong>{{ lang.language || 'Idioma' }}</strong>
-                        <span v-if="lang.proficiency"> - {{ lang.proficiency }}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Certifications -->
-                  <div v-if="resume.structured_data.certifications?.length" class="cv-section">
-                    <h2 class="cv-section-title">CERTIFICACIONES</h2>
-                    <div v-for="(cert, index) in resume.structured_data.certifications" :key="index" class="cv-certification">
-                      <div class="cv-cert-header">
-                        <h3>{{ cert.name || 'Certificación' }}</h3>
-                        <span v-if="cert.issuer" class="cv-cert-issuer">{{ cert.issuer }}</span>
-                        <span v-if="cert.date" class="cv-cert-date">{{ cert.date }}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </TabPanel>
-            
-            <TabPanel value="5" header="Datos Completos">
-              <div class="raw-data">
-                <pre>{{ JSON.stringify(resume.structured_data, null, 2) }}</pre>
-              </div>
-            </TabPanel>
-          </TabView>
-        </template>
-      </Card>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div v-else-if="!loading" class="error-state">
@@ -579,11 +436,10 @@ onMounted(() => {
   color: var(--text-color-secondary);
 }
 
-/* Harvard CV Styles */
-.harvard-cv {
+/* Harvard CV Full View Styles */
+.harvard-cv-full {
   background: white;
-  border-radius: 8px;
-  overflow: hidden;
+  min-height: 100vh;
 }
 
 .cv-container {
@@ -591,178 +447,212 @@ onMounted(() => {
   margin: 0 auto;
   padding: 2rem;
   font-family: 'Times New Roman', serif;
-  line-height: 1.6;
-  color: #333;
+  line-height: 1.4;
+  color: #000;
+  font-size: 11pt;
 }
 
 .cv-header {
   text-align: center;
-  margin-bottom: 2rem;
-  padding-bottom: 1rem;
-  border-bottom: 2px solid #333;
-}
-
-.cv-name {
-  font-size: 2.5rem;
-  font-weight: bold;
-  margin: 0 0 0.5rem 0;
-  color: #333;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.cv-contact {
-  display: flex;
-  justify-content: center;
-  gap: 2rem;
-  flex-wrap: wrap;
-  font-size: 1rem;
-}
-
-.cv-contact span {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.cv-contact i {
-  color: #666;
-}
-
-.cv-section {
-  margin-bottom: 2rem;
-}
-
-.cv-section-title {
-  font-size: 1.3rem;
-  font-weight: bold;
-  text-transform: uppercase;
-  color: #333;
-  margin: 0 0 1rem 0;
-  padding-bottom: 0.3rem;
-  border-bottom: 1px solid #666;
-  letter-spacing: 0.5px;
-}
-
-.cv-summary {
-  font-size: 1rem;
-  text-align: justify;
-  margin: 0;
-  font-style: italic;
-}
-
-.cv-experience,
-.cv-education,
-.cv-certification {
   margin-bottom: 1.5rem;
 }
 
-.cv-exp-header,
-.cv-edu-header,
-.cv-cert-header {
+.cv-name {
+  font-size: 18pt;
+  font-weight: bold;
+  margin: 0 0 0.3rem 0;
+  color: #000;
+}
+
+.cv-contact {
+  font-size: 11pt;
+  color: #000;
+}
+
+.cv-section {
+  margin-bottom: 1.5rem;
+}
+
+.cv-section-title {
+  font-size: 12pt;
+  font-weight: bold;
+  color: #000;
+  margin: 0 0 0.2rem 0;
+}
+
+.cv-divider {
+  border-bottom: 1px solid #000;
+  margin-bottom: 0.8rem;
+  width: 100%;
+}
+
+/* Education */
+.cv-education {
+  margin-bottom: 0.8rem;
+}
+
+.cv-edu-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 0.5rem;
 }
 
-.cv-exp-title h3,
-.cv-edu-title h3 {
-  font-size: 1.1rem;
+.cv-edu-left h3 {
+  font-size: 11pt;
   font-weight: bold;
   margin: 0;
-  color: #333;
+  color: #000;
 }
 
-.cv-exp-title h4,
-.cv-edu-title h4 {
-  font-size: 1rem;
+.cv-edu-left h4 {
+  font-size: 11pt;
   font-weight: normal;
-  margin: 0.2rem 0 0 0;
-  color: #666;
-  font-style: italic;
+  margin: 0;
+  color: #000;
 }
 
-.cv-exp-period,
-.cv-edu-period {
-  font-size: 0.9rem;
-  color: #666;
+.cv-edu-right {
+  font-size: 11pt;
+  color: #000;
+  white-space: nowrap;
+}
+
+/* Skills */
+.cv-skills-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.3rem 1rem;
+  font-size: 11pt;
+}
+
+.cv-skill-item {
+  color: #000;
+}
+
+/* Experience */
+.cv-experience {
+  margin-bottom: 1.2rem;
+}
+
+.cv-exp-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.3rem;
+}
+
+.cv-exp-left h3 {
+  font-size: 11pt;
   font-weight: bold;
+  margin: 0;
+  color: #000;
+}
+
+.cv-exp-right {
+  font-size: 11pt;
+  color: #000;
   white-space: nowrap;
 }
 
 .cv-responsibilities {
-  margin: 0.5rem 0 0 1rem;
+  margin: 0.3rem 0 0.5rem 1rem;
   padding: 0;
+  font-size: 11pt;
 }
 
 .cv-responsibilities li {
-  margin-bottom: 0.3rem;
+  margin-bottom: 0.2rem;
   text-align: justify;
+  color: #000;
 }
 
-.cv-edu-description {
-  margin: 0.5rem 0 0 0;
+.cv-company {
+  font-size: 11pt;
   font-style: italic;
-  color: #666;
+  color: #000;
+  margin-top: 0.3rem;
 }
 
-.cv-skills {
-  font-size: 1rem;
-  line-height: 1.8;
-}
-
-.cv-skill {
-  font-weight: 500;
-}
-
-.cv-languages {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 0.5rem;
-}
-
-.cv-language {
-  font-size: 1rem;
+/* Certifications */
+.cv-certification {
+  margin-bottom: 0.8rem;
 }
 
 .cv-cert-header {
-  flex-direction: column;
+  display: flex;
+  justify-content: space-between;
   align-items: flex-start;
 }
 
-.cv-cert-header h3 {
-  font-size: 1.1rem;
+.cv-cert-left h3 {
+  font-size: 11pt;
   font-weight: bold;
   margin: 0;
-  color: #333;
+  color: #000;
 }
 
 .cv-cert-issuer {
-  font-style: italic;
-  color: #666;
-  margin-top: 0.2rem;
+  font-size: 11pt;
+  color: #000;
+  margin-top: 0.1rem;
 }
 
-.cv-cert-date {
-  font-size: 0.9rem;
-  color: #666;
+.cv-cert-right {
+  font-size: 11pt;
+  color: #000;
+  white-space: nowrap;
+}
+
+/* Projects */
+.cv-project {
+  margin-bottom: 1rem;
+}
+
+.cv-project h3 {
+  font-size: 11pt;
   font-weight: bold;
-  margin-top: 0.2rem;
+  margin: 0 0 0.2rem 0;
+  color: #000;
+}
+
+.cv-project-description {
+  font-size: 11pt;
+  margin: 0.2rem 0;
+  text-align: justify;
+  color: #000;
+}
+
+.cv-project-tech {
+  font-size: 11pt;
+  margin: 0.2rem 0;
+  color: #000;
+  font-style: italic;
+}
+
+/* Languages */
+.cv-languages {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.3rem;
+}
+
+.cv-language {
+  font-size: 11pt;
+  color: #000;
 }
 
 @media print {
   .cv-container {
     padding: 1rem;
-    box-shadow: none;
+    font-size: 10pt;
   }
   
   .cv-name {
-    font-size: 2rem;
+    font-size: 16pt;
   }
   
-  .cv-contact {
-    gap: 1rem;
+  .cv-section-title {
+    font-size: 11pt;
   }
 }
 
