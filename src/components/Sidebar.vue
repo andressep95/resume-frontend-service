@@ -1,99 +1,66 @@
 <template>
-  <div class="layout-wrapper">
-    <!-- Desktop Sidebar -->
-    <aside :class="['sidebar', { expanded: isExpanded }]" @mouseenter="expand" @mouseleave="collapse">
-      <!-- Logo / Header -->
-      <div class="sidebar-header">
-        <i class="pi pi-file logo-icon"></i>
-        <span v-show="isExpanded" class="logo-text">CV Processor</span>
-      </div>
-
-      <!-- Navigation Menu -->
-      <nav class="sidebar-nav">
-        <router-link
-          v-for="item in menuItems"
-          :key="item.path"
-          :to="item.path"
-          class="sidebar-item"
-          :class="{ active: isActive(item.path) }"
-          :title="!isExpanded ? item.label : ''"
-        >
-          <i :class="['menu-icon', item.icon]"></i>
-          <span v-show="isExpanded" class="menu-label">{{ item.label }}</span>
-        </router-link>
-      </nav>
-
-      <!-- User Section -->
-      <div class="sidebar-footer">
-        <div class="user-info">
-          <Avatar :label="userInitials" shape="circle" size="normal" />
-          <div v-show="isExpanded" class="user-details">
-            <span class="user-name">{{ username }}</span>
-            <span class="user-email">{{ email }}</span>
-          </div>
-        </div>
-        <Button
-          icon="pi pi-sign-out"
-          severity="danger"
-          :label="isExpanded ? 'Salir' : ''"
-          @click="handleLogout"
-          class="logout-btn"
-          :title="!isExpanded ? 'Salir' : ''"
-        />
-      </div>
-    </aside>
-
-    <!-- Mobile Sidebar -->
-    <Sidebar v-model:visible="sidebarVisible" class="mobile-sidebar">
-      <template #header>
-        <div class="sidebar-header">
-          <h3>CV Processor</h3>
-        </div>
-      </template>
-      
-      <Menu :model="menuItems" class="sidebar-menu" />
-      
-      <template #footer>
-        <div class="sidebar-footer">
-          <Button
-            icon="pi pi-sign-out"
-            label="Cerrar Sesión"
-            severity="secondary"
-            @click="logout"
-            class="logout-button"
-          />
-        </div>
-      </template>
-    </Sidebar>
-
-    <div class="layout-main">
-      <Button
-        icon="pi pi-bars"
-        severity="secondary"
-        text
-        @click="sidebarVisible = true"
-        class="mobile-menu-toggle"
-      />
-      
-      <div class="layout-content">
-        <router-view />
-      </div>
+  <aside :class="['sidebar', { expanded: isExpanded }]" @mouseenter="expand" @mouseleave="collapse">
+    <!-- Logo / Header -->
+    <div class="sidebar-header">
+      <i class="pi pi-file logo-icon"></i>
+      <span v-show="isExpanded" class="logo-text">CV Processor</span>
     </div>
-  </div>
+
+    <!-- Navigation Menu -->
+    <nav class="sidebar-nav">
+      <router-link
+        v-for="item in menuItems"
+        :key="item.path"
+        :to="item.path"
+        class="sidebar-item"
+        :class="{ active: isActive(item.path) }"
+        :title="!isExpanded ? item.label : ''"
+      >
+        <i :class="['menu-icon', item.icon]"></i>
+        <span v-show="isExpanded" class="menu-label">{{ item.label }}</span>
+      </router-link>
+    </nav>
+
+    <!-- User Section -->
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <Avatar :label="userInitials" shape="circle" size="normal" />
+        <div v-show="isExpanded" class="user-details">
+          <span class="user-name">{{ username }}</span>
+          <span class="user-email">{{ email }}</span>
+        </div>
+      </div>
+      <Button
+        icon="pi pi-sign-out"
+        severity="danger"
+        :label="isExpanded ? 'Salir' : ''"
+        @click="handleLogout"
+        class="logout-btn"
+        :title="!isExpanded ? 'Salir' : ''"
+      />
+    </div>
+  </aside>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import Sidebar from 'primevue/sidebar'
-import Menu from 'primevue/menu'
 import Button from 'primevue/button'
 import Avatar from 'primevue/avatar'
 
 const router = useRouter()
 const route = useRoute()
-const sidebarVisible = ref(false)
+
+const emit = defineEmits<{
+  (e: 'update:expanded', value: boolean): void
+}>()
+
 const isExpanded = ref(false)
+
+// Emitir cuando cambia el estado de expansión
+watch(isExpanded, (newValue) => {
+  emit('update:expanded', newValue)
+})
 
 const menuItems = [
   {
@@ -132,18 +99,9 @@ const handleLogout = () => {
   localStorage.removeItem('refreshToken')
   router.push('/login')
 }
-
-const logout = () => {
-  handleLogout()
-}
 </script>
 
 <style scoped>
-.layout-wrapper {
-  display: flex;
-  min-height: 100vh;
-}
-
 /* SIDEBAR PRINCIPAL */
 .sidebar {
   position: fixed;
@@ -309,31 +267,6 @@ const logout = () => {
   justify-content: center;
 }
 
-/* MOBILE */
-.mobile-sidebar {
-  width: 280px;
-}
-
-.layout-main {
-  flex: 1;
-  margin-left: 70px;
-  transition: margin-left 0.3s ease;
-}
-
-.mobile-menu-toggle {
-  position: fixed;
-  top: 1rem;
-  left: 1rem;
-  z-index: 1001;
-  display: none;
-}
-
-.layout-content {
-  padding: 2rem;
-  background: var(--surface-ground);
-  min-height: 100vh;
-}
-
 /* SCROLLBAR */
 .sidebar-nav::-webkit-scrollbar {
   width: 4px;
@@ -350,37 +283,5 @@ const logout = () => {
 
 .sidebar-nav::-webkit-scrollbar-thumb:hover {
   background: #d1d5db;
-}
-
-@media (min-width: 768px) {
-  .sidebar {
-    display: flex;
-  }
-  
-  .mobile-sidebar {
-    display: none;
-  }
-  
-  .mobile-menu-toggle {
-    display: none;
-  }
-}
-
-@media (max-width: 767px) {
-  .sidebar {
-    display: none;
-  }
-  
-  .mobile-sidebar {
-    display: block;
-  }
-  
-  .mobile-menu-toggle {
-    display: inline-flex;
-  }
-  
-  .layout-main {
-    margin-left: 0;
-  }
 }
 </style>

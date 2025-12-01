@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import LoginView from '../views/LoginView.vue'
-import AppLayout from '../components/AppLayout.vue'
 import HomeView from '../views/HomeView.vue'
 import MyResumesView from '../views/MyResumesView.vue'
 import ResumeDetailView from '../views/ResumeDetailView.vue'
@@ -15,25 +14,21 @@ const router = createRouter({
     },
     {
       path: '/',
-      component: AppLayout,
+      name: 'home',
+      component: HomeView,
       meta: { requiresAuth: true },
-      children: [
-        {
-          path: '',
-          name: 'home',
-          component: HomeView,
-        },
-        {
-          path: 'my-resumes',
-          name: 'my-resumes',
-          component: MyResumesView,
-        },
-        {
-          path: 'resume/:id',
-          name: 'resume-detail',
-          component: ResumeDetailView,
-        },
-      ],
+    },
+    {
+      path: '/my-resumes',
+      name: 'my-resumes',
+      component: MyResumesView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/resume/:id',
+      name: 'resume-detail',
+      component: ResumeDetailView,
+      meta: { requiresAuth: true },
     },
   ],
 })
