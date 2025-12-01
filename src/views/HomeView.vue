@@ -1,35 +1,43 @@
 <template>
   <div class="home-view">
-    <h1>Dashboard - Prueba de Conexión</h1>
-    
-    <TokenDebugger ref="debuggerRef" />
-    
-    <div class="actions">
-      <button @click="testConnection" class="test-btn">Probar Conexión API</button>
-      <button @click="refreshTokenAction" class="refresh-btn">Refrescar Token</button>
-      <button @click="logout" class="logout-btn">Cerrar Sesión</button>
+    <div class="header">
+      <h1>Procesador de CV</h1>
+      <Button
+        icon="pi pi-sign-out"
+        label="Cerrar Sesión"
+        severity="secondary"
+        @click="logout"
+        class="logout-btn"
+      />
     </div>
     
-    <div v-if="apiResponse" class="api-response">
-      <h3>Respuesta de la API:</h3>
-      <pre>{{ JSON.stringify(apiResponse, null, 2) }}</pre>
+    <ResumeUploadForm @upload="handleUpload" />
+    
+    <div v-if="uploadResponse" class="upload-response">
+      <h3>Resultado:</h3>
+      <pre>{{ JSON.stringify(uploadResponse, null, 2) }}</pre>
     </div>
     
     <div v-if="errorMessage" class="error-message">
       <h3>Error:</h3>
       <p>{{ errorMessage }}</p>
     </div>
+    
+    <Toast />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import TokenDebugger from '../components/TokenDebugger.vue'
+import { useToast } from 'primevue/usetoast'
+import ResumeUploadForm from '../components/ResumeUploadForm.vue'
+import Button from 'primevue/button'
+import Toast from 'primevue/toast'
 
 const router = useRouter()
-const debuggerRef = ref()
-const apiResponse = ref<any>(null)
+const toast = useToast()
+const uploadResponse = ref<any>(null)
 const errorMessage = ref('')
 
 // Verificar autenticación básica
@@ -40,93 +48,79 @@ const checkAuth = () => {
   }
 }
 
-// Probar conexión con la API
-const testConnection = async () => {
+// Manejar upload de CV
+const handleUpload = async (data: { file: File; language: string; instructions: string }) => {
   const token = localStorage.getItem('authToken')
   errorMessage.value = ''
-  apiResponse.value = null
+  uploadResponse.value = null
   
   if (!token) {
-    errorMessage.value = 'No hay token disponible'
+    errorMessage.value = 'No hay token de autenticación'
     return
   }
   
   try {
-    const apiUrl = import.meta.env.VITE_AUTH_API_URL || 'https://auth.cloudcentinel.com/api/v1/auth'
+    const apiUrl = import.meta.env.VITE_RESUME_API_URL || 'https://api.cloudcentinel.com/resume/api/v1/resume'
     
-    // Intentar diferentes endpoints para probar la conexión
-    const endpoints = ['/me', '/profile', '/user']
-    
-    for (const endpoint of endpoints) {
-      try {
-        console.log(`Probando endpoint: ${apiUrl}${endpoint}`)
-        const response = await fetch(`${apiUrl}${endpoint}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        })
-        
-        const data = await response.text()
-        console.log(`Respuesta de ${endpoint}:`, { status: response.status, data })
-        
-        if (response.ok) {
-          apiResponse.value = {
-            endpoint,
-            status: response.status,
-            data: JSON.parse(data)
-          }
-          return
-        }
-      } catch (endpointError) {
-        console.log(`Error en ${endpoint}:`, endpointError)
-      }
+    const formData = new FormData()
+    formData.append('file', data.file)
+    formData.append('language', data.language)
+    if (data.instructions) {
+      formData.append('instructions', data.instructions)
     }
     
-    errorMessage.value = 'No se pudo conectar con ningún endpoint de usuario'
+    console.log('📤 Enviando CV:', {
+      fileName: data.file.name,
+      fileSize: data.file.size,
+      language: data.language,
+      instructions: data.instructions
+    })
+    
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      },
+      body: formData
+    })
+    
+    console.log('📡 Respuesta HTTP status:', response.status)
+    
+    if (response.ok) {
+      const result = await response.json()
+      uploadResponse.value = result
+      
+      toast.add({
+        severity: 'success',
+        summary: 'Éxito',
+        detail: 'CV enviado para procesamiento',
+        life: 5000
+      })
+    } else {
+      const error = await response.json()
+      errorMessage.value = error.message || 'Error al procesar CV'
+      
+      toast.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: error.message || 'Error al procesar CV',
+        life: 5000
+      })
+    }
   } catch (error) {
-    console.error('Error general:', error)
+    console.error('❌ Error en upload:', error)
     errorMessage.value = `Error de conexión: ${error instanceof Error ? error.message : 'Error desconocido'}`
+    
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'Error de conexión. Intenta nuevamente.',
+      life: 5000
+    })
   }
 }
 
-// Refrescar token
-const refreshTokenAction = async () => {
-  const refreshTokenValue = localStorage.getItem('refreshToken')
-  
-  if (!refreshTokenValue) {
-    router.push('/login')
-    return
-  }
-  
-  try {
-    const apiUrl = import.meta.env.VITE_AUTH_API_URL || 'https://auth.cloudcentinel.com/api/v1/auth'
-    const response = await fetch(`${apiUrl}/refresh`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ refresh_token: refreshTokenValue })
-    })
-    
-    if (response.ok) {
-      const data = await response.json()
-      localStorage.setItem('authToken', data.access_token)
-      if (data.refresh_token) {
-        localStorage.setItem('refreshToken', data.refresh_token)
-      }
-      // Recargar el debugger
-      if (debuggerRef.value) {
-        debuggerRef.value.loadTokens()
-      }
-    } else {
-      router.push('/login')
-    }
-  } catch (error) {
-    console.error('Error refrescando token:', error)
-    router.push('/login')
-  }
-}
+
 
 // Logout
 const logout = () => {
@@ -147,43 +141,27 @@ onMounted(() => {
   margin: 0 auto;
 }
 
-.actions {
-  margin: 2rem 0;
+.header {
   display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--surface-border);
 }
 
-.test-btn, .refresh-btn, .logout-btn {
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: 500;
+.header h1 {
+  margin: 0;
+  color: var(--text-color);
 }
 
-.test-btn {
-  background: #28a745;
-  color: white;
-}
-
-.refresh-btn {
-  background: #007bff;
-  color: white;
-}
-
-.logout-btn {
-  background: #dc3545;
-  color: white;
-}
-
-.api-response, .error-message {
+.upload-response, .error-message {
   margin: 2rem 0;
   padding: 1rem;
   border-radius: 4px;
 }
 
-.api-response {
+.upload-response {
   border: 1px solid #28a745;
   background: #f8fff9;
 }
@@ -202,5 +180,13 @@ pre {
   font-size: 0.9rem;
   max-height: 400px;
   overflow-y: auto;
+}
+
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
 }
 </style>
