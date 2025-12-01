@@ -17,11 +17,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, onMounted, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import Sidebar from './components/Sidebar.vue'
 
 const router = useRouter()
+const route = useRoute()
 const isSidebarExpanded = ref(false)
 const isAuthenticated = ref(false)
 
@@ -38,16 +39,20 @@ const checkAuth = () => {
   const token = localStorage.getItem('authToken')
   isAuthenticated.value = !!token
   
-  if (!token && router.currentRoute.value.path !== '/login') {
+  console.log('Checking auth:', { token: !!token, path: route.path })
+  
+  if (!token && route.path !== '/login') {
     router.push('/login')
   }
 }
 
+// Watcher para detectar cambios de ruta
+watch(() => route.path, () => {
+  checkAuth()
+})
+
 onMounted(() => {
   checkAuth()
-  
-  // Escuchar cambios en el localStorage para actualizar el estado de autenticación
-  window.addEventListener('storage', checkAuth)
 })
 </script>
 
