@@ -123,7 +123,7 @@ const logout = () => {
   top: 0;
   width: 60px;
   height: 100vh;
-  background: var(--surface-card);
+  background: white;
   display: flex;
   flex-direction: column;
   transition: width 0.3s ease;
