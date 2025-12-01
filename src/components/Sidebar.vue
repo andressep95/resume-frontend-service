@@ -2,7 +2,7 @@
   <aside :class="['sidebar', { expanded: isExpanded }]" @mouseenter="expand" @mouseleave="collapse">
     <!-- Logo / Header -->
     <div class="sidebar-header">
-      <i class="pi pi-file logo-icon"></i>
+      <i class="pi pi-shield logo-icon"></i>
       <span v-show="isExpanded" class="logo-text">CV Processor</span>
     </div>
 
@@ -66,12 +66,12 @@ watch(isExpanded, (newValue) => {
 const menuItems = [
   {
     label: 'Procesar CV',
-    icon: 'pi pi-upload',
+    icon: 'pi pi-home',
     path: '/'
   },
   {
     label: 'Mis CVs',
-    icon: 'pi pi-list',
+    icon: 'pi pi-database',
     path: '/my-resumes'
   }
 ]
