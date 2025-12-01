@@ -1,14 +1,31 @@
 <template>
   <div class="app-container">
-    <!-- Sidebar fijo que siempre está visible -->
+    <!-- Mobile Overlay -->
+    <div 
+      v-if="isAuthenticated && isMobile && isMobileSidebarOpen" 
+      class="mobile-overlay"
+      @click="closeMobileSidebar"
+    ></div>
+
+    <!-- Mobile Hamburger Button -->
+    <Button
+      v-if="isAuthenticated && isMobile"
+      icon="pi pi-bars"
+      class="mobile-menu-btn"
+      @click="toggleMobileSidebar"
+      severity="secondary"
+    />
+
+    <!-- Sidebar -->
     <Sidebar
       v-if="isAuthenticated"
+      :is-mobile-open="isMobileSidebarOpen"
       @update:expanded="handleSidebarExpanded"
     />
 
     <!-- Contenido principal -->
     <main
-      :class="['main-content', { 'with-sidebar': isAuthenticated }]"
+      :class="['main-content', { 'with-sidebar': isAuthenticated && !isMobile }]"
       :style="{ marginLeft: sidebarMargin }"
     >
       <RouterView />
@@ -19,20 +36,35 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import Button from 'primevue/button'
 import Sidebar from './components/Sidebar.vue'
 
 const router = useRouter()
 const route = useRoute()
 const isSidebarExpanded = ref(false)
 const isAuthenticated = ref(false)
+const isMobileSidebarOpen = ref(false)
+const isMobile = ref(false)
 
 const sidebarMargin = computed(() => {
-  if (!isAuthenticated.value) return '0'
+  if (!isAuthenticated.value || isMobile.value) return '0'
   return isSidebarExpanded.value ? '220px' : '70px'
 })
 
 const handleSidebarExpanded = (expanded: boolean) => {
   isSidebarExpanded.value = expanded
+}
+
+const checkMobile = () => {
+  isMobile.value = window.innerWidth <= 768
+}
+
+const toggleMobileSidebar = () => {
+  isMobileSidebarOpen.value = !isMobileSidebarOpen.value
+}
+
+const closeMobileSidebar = () => {
+  isMobileSidebarOpen.value = false
 }
 
 const checkAuth = () => {
@@ -53,6 +85,8 @@ watch(() => route.path, () => {
 
 onMounted(() => {
   checkAuth()
+  checkMobile()
+  window.addEventListener('resize', checkMobile)
 })
 </script>
 
@@ -94,9 +128,30 @@ body {
   overflow: hidden;
 }
 
+/* Mobile Styles */
+.mobile-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9998;
+}
+
+.mobile-menu-btn {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 10000;
+  border-radius: 50%;
+  width: 3rem;
+  height: 3rem;
+}
+
 @media (max-width: 768px) {
   .main-content {
-    padding: 1rem;
+    padding: 4rem 1rem 1rem 1rem;
     margin-left: 0 !important;
   }
   

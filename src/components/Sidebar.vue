@@ -1,9 +1,9 @@
 <template>
-  <aside :class="['sidebar', { expanded: isExpanded }]" @mouseenter="expand" @mouseleave="collapse">
+  <aside :class="['sidebar', { expanded: isExpanded, 'mobile-open': isMobileOpen }]" @mouseenter="expand" @mouseleave="collapse">
     <!-- Logo / Header -->
     <div class="sidebar-header">
       <i class="pi pi-shield logo-icon"></i>
-      <span v-show="isExpanded" class="logo-text">CV Processor</span>
+      <span v-show="isExpanded || isMobileOpen" class="logo-text">CV Processor</span>
     </div>
 
     <!-- Navigation Menu -->
@@ -17,7 +17,7 @@
         :title="!isExpanded ? item.label : ''"
       >
         <i :class="['menu-icon', item.icon]"></i>
-        <span v-show="isExpanded" class="menu-label">{{ item.label }}</span>
+        <span v-show="isExpanded || isMobileOpen" class="menu-label">{{ item.label }}</span>
       </router-link>
     </nav>
 
@@ -25,7 +25,7 @@
     <div class="sidebar-footer">
       <div class="user-info">
         <Avatar :label="userInitials" shape="circle" size="normal" />
-        <div v-show="isExpanded" class="user-details">
+        <div v-show="isExpanded || isMobileOpen" class="user-details">
           <span class="user-name">{{ username }}</span>
           <span class="user-email">{{ email }}</span>
         </div>
@@ -33,17 +33,17 @@
       <Button
         icon="pi pi-sign-out"
         severity="danger"
-        :label="isExpanded ? 'Salir' : ''"
+        :label="(isExpanded || isMobileOpen) ? 'Salir' : ''"
         @click="handleLogout"
         class="logout-btn"
-        :title="!isExpanded ? 'Salir' : ''"
+        :title="!(isExpanded || isMobileOpen) ? 'Salir' : ''"
       />
     </div>
   </aside>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, toRefs } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import Button from 'primevue/button'
 import Avatar from 'primevue/avatar'
@@ -52,11 +52,16 @@ import { decodeJWT } from '../utils/auth'
 const router = useRouter()
 const route = useRoute()
 
+const props = defineProps<{
+  isMobileOpen?: boolean
+}>()
+
 const emit = defineEmits<{
   (e: 'update:expanded', value: boolean): void
 }>()
 
 const isExpanded = ref(false)
+const { isMobileOpen = false } = toRefs(props)
 
 // Emitir cuando cambia el estado de expansión
 watch(isExpanded, (newValue) => {
@@ -321,5 +326,23 @@ const handleLogout = () => {
 
 .sidebar-nav::-webkit-scrollbar-thumb:hover {
   background: #9ca3af;
+}
+
+/* Mobile Styles */
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    width: 280px;
+    z-index: 9999;
+  }
+  
+  .sidebar.mobile-open {
+    transform: translateX(0);
+  }
+  
+  .sidebar:hover {
+    width: 280px;
+  }
 }
 </style>
