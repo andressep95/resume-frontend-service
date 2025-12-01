@@ -18,20 +18,26 @@
           responsiveLayout="scroll"
           class="resumes-table"
         >
-          <Column field="id" header="ID" sortable>
+          <Column field="request_id" header="ID" sortable>
             <template #body="{ data }">
-              <span class="resume-id">{{ data.id.substring(0, 8) }}...</span>
+              <span class="resume-id">{{ data.request_id.substring(0, 8) }}...</span>
             </template>
           </Column>
 
-          <Column field="filename" header="Archivo" sortable>
+          <Column field="original_filename" header="Archivo" sortable>
             <template #body="{ data }">
               <div class="filename-cell">
-                <i class="pi pi-file-pdf" v-if="data.filename?.endsWith('.pdf')"></i>
-                <i class="pi pi-file-word" v-else-if="data.filename?.endsWith('.docx')"></i>
+                <i class="pi pi-file-pdf" v-if="data.original_filename?.endsWith('.pdf')"></i>
+                <i class="pi pi-file-word" v-else-if="data.original_filename?.endsWith('.docx')"></i>
                 <i class="pi pi-file" v-else></i>
-                <span>{{ data.filename || 'Sin nombre' }}</span>
+                <span>{{ data.original_filename || 'Sin nombre' }}</span>
               </div>
+            </template>
+          </Column>
+
+          <Column field="full_name" header="Nombre" sortable>
+            <template #body="{ data }">
+              <span>{{ data.full_name || '-' }}</span>
             </template>
           </Column>
 
@@ -44,11 +50,7 @@
             </template>
           </Column>
 
-          <Column field="language" header="Idioma" sortable>
-            <template #body="{ data }">
-              <span class="language-badge">{{ getLanguageLabel(data.language) }}</span>
-            </template>
-          </Column>
+
 
           <Column field="created_at" header="Fecha" sortable>
             <template #body="{ data }">
@@ -63,14 +65,14 @@
                   icon="pi pi-eye"
                   severity="info"
                   text
-                  @click="viewDetails(data.id)"
+                  @click="viewDetails(data.request_id)"
                   v-tooltip="'Ver detalles'"
                 />
                 <Button
                   icon="pi pi-download"
                   severity="success"
                   text
-                  @click="downloadResume(data.id)"
+                  @click="downloadResume(data.request_id)"
                   v-tooltip="'Descargar'"
                   :disabled="data.status !== 'completed'"
                 />

@@ -19,7 +19,7 @@
       <Card class="resume-info-card">
         <template #title>
           <div class="resume-header">
-            <h2>{{ resume.filename || 'CV Sin Nombre' }}</h2>
+            <h2>{{ resume.original_filename || 'CV Sin Nombre' }}</h2>
             <Tag
               :value="getStatusLabel(resume.status)"
               :severity="getStatusSeverity(resume.status)"
@@ -33,15 +33,27 @@
             <div class="metadata-grid">
               <div class="metadata-item">
                 <label>ID de Solicitud:</label>
-                <span class="monospace">{{ resume.id }}</span>
+                <span class="monospace">{{ resume.request_id }}</span>
               </div>
               <div class="metadata-item">
                 <label>Idioma:</label>
                 <span>{{ getLanguageLabel(resume.language) }}</span>
               </div>
               <div class="metadata-item">
+                <label>Tamaño del Archivo:</label>
+                <span>{{ formatFileSize(resume.file_size_bytes) }}</span>
+              </div>
+              <div class="metadata-item">
                 <label>Fecha de Procesamiento:</label>
                 <span>{{ formatDate(resume.created_at) }}</span>
+              </div>
+              <div class="metadata-item" v-if="resume.completed_at">
+                <label>Completado:</label>
+                <span>{{ formatDate(resume.completed_at) }}</span>
+              </div>
+              <div class="metadata-item" v-if="resume.processing_time_ms">
+                <label>Tiempo de Procesamiento:</label>
+                <span>{{ resume.processing_time_ms }}ms</span>
               </div>
               <div class="metadata-item" v-if="resume.instructions">
                 <label>Instrucciones:</label>
@@ -52,7 +64,7 @@
         </template>
       </Card>
 
-      <Card v-if="resume.extracted_data" class="extracted-data-card">
+      <Card v-if="resume.structured_data" class="extracted-data-card">
         <template #title>
           <h3>Datos Extraídos</h3>
         </template>
@@ -62,21 +74,17 @@
             <TabPanel value="0" header="Información Personal">
               <div class="personal-info">
                 <div class="info-grid">
-                  <div class="info-item" v-if="resume.extracted_data.personal_info?.name">
+                  <div class="info-item" v-if="resume.structured_data.header?.name">
                     <label>Nombre:</label>
-                    <span>{{ resume.extracted_data.personal_info.name }}</span>
+                    <span>{{ resume.structured_data.header.name }}</span>
                   </div>
-                  <div class="info-item" v-if="resume.extracted_data.personal_info?.email">
+                  <div class="info-item" v-if="resume.structured_data.header?.contact?.email">
                     <label>Email:</label>
-                    <span>{{ resume.extracted_data.personal_info.email }}</span>
+                    <span>{{ resume.structured_data.header.contact.email }}</span>
                   </div>
-                  <div class="info-item" v-if="resume.extracted_data.personal_info?.phone">
+                  <div class="info-item" v-if="resume.structured_data.header?.contact?.phone">
                     <label>Teléfono:</label>
-                    <span>{{ resume.extracted_data.personal_info.phone }}</span>
-                  </div>
-                  <div class="info-item" v-if="resume.extracted_data.personal_info?.location">
-                    <label>Ubicación:</label>
-                    <span>{{ resume.extracted_data.personal_info.location }}</span>
+                    <span>{{ resume.structured_data.header.contact.phone }}</span>
                   </div>
                 </div>
               </div>
@@ -84,17 +92,21 @@
             
             <TabPanel value="1" header="Experiencia Laboral">
               <div class="experience-section">
-                <div v-if="resume.extracted_data.work_experience?.length" class="experience-list">
-                  <Card v-for="(exp, index) in resume.extracted_data.work_experience" :key="index" class="experience-card">
+                <div v-if="resume.structured_data.professionalExperience?.length" class="experience-list">
+                  <Card v-for="(exp, index) in resume.structured_data.professionalExperience" :key="index" class="experience-card">
                     <template #content>
                       <div class="experience-item">
                         <h4>{{ exp.position || 'Posición no especificada' }}</h4>
                         <p class="company">{{ exp.company || 'Empresa no especificada' }}</p>
-                        <p class="period" v-if="exp.start_date || exp.end_date">
-                          {{ exp.start_date || 'Fecha inicio no especificada' }} - 
-                          {{ exp.end_date || 'Presente' }}
+                        <p class="period" v-if="exp.period">
+                          {{ exp.period.start || 'Fecha inicio no especificada' }} - 
+                          {{ exp.period.end || 'Presente' }}
                         </p>
-                        <p class="description" v-if="exp.description">{{ exp.description }}</p>
+                        <div class="description" v-if="exp.responsibilities?.length">
+                          <ul>
+                            <li v-for="(resp, i) in exp.responsibilities" :key="i">{{ resp }}</li>
+                          </ul>
+                        </div>
                       </div>
                     </template>
                   </Card>
@@ -107,15 +119,15 @@
             
             <TabPanel value="2" header="Educación">
               <div class="education-section">
-                <div v-if="resume.extracted_data.education?.length" class="education-list">
-                  <Card v-for="(edu, index) in resume.extracted_data.education" :key="index" class="education-card">
+                <div v-if="resume.structured_data.education?.length" class="education-list">
+                  <Card v-for="(edu, index) in resume.structured_data.education" :key="index" class="education-card">
                     <template #content>
                       <div class="education-item">
                         <h4>{{ edu.degree || 'Título no especificado' }}</h4>
                         <p class="institution">{{ edu.institution || 'Institución no especificada' }}</p>
-                        <p class="period" v-if="edu.start_date || edu.end_date">
-                          {{ edu.start_date || 'Fecha inicio no especificada' }} - 
-                          {{ edu.end_date || 'Presente' }}
+                        <p class="period" v-if="edu.period">
+                          {{ edu.period.start || 'Fecha inicio no especificada' }} - 
+                          {{ edu.period.end || 'Presente' }}
                         </p>
                       </div>
                     </template>
@@ -129,9 +141,9 @@
             
             <TabPanel value="3" header="Habilidades">
               <div class="skills-section">
-                <div v-if="resume.extracted_data.skills?.length" class="skills-list">
+                <div v-if="resume.structured_data.technicalSkills?.skills?.length" class="skills-list">
                   <Chip
-                    v-for="(skill, index) in resume.extracted_data.skills"
+                    v-for="(skill, index) in resume.structured_data.technicalSkills.skills"
                     :key="index"
                     :label="skill"
                     class="skill-chip"
@@ -145,7 +157,7 @@
             
             <TabPanel value="4" header="Datos Completos">
               <div class="raw-data">
-                <pre>{{ JSON.stringify(resume.extracted_data, null, 2) }}</pre>
+                <pre>{{ JSON.stringify(resume.structured_data, null, 2) }}</pre>
               </div>
             </TabPanel>
           </TabView>
@@ -284,6 +296,13 @@ const formatDate = (dateString: string) => {
     hour: '2-digit',
     minute: '2-digit'
   })
+}
+
+const formatFileSize = (bytes: number) => {
+  if (!bytes) return '-'
+  const sizes = ['Bytes', 'KB', 'MB', 'GB']
+  const i = Math.floor(Math.log(bytes) / Math.log(1024))
+  return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i]
 }
 
 onMounted(() => {
