@@ -91,10 +91,10 @@
             <div v-for="(cert, index) in resume.structured_data.certifications" :key="index" class="cv-certification">
               <div class="cv-cert-header">
                 <div class="cv-cert-left">
-                  <h3>{{ cert.name || 'Certificación' }}</h3>
-                  <span v-if="cert.issuer" class="cv-cert-issuer">{{ cert.issuer }}</span>
+                  <h3 class="editable-field" @click="openEditModal(`certification_${index}_name`, cert.name, 'Certificación')">{{ cert.name || 'Certificación' }}</h3>
+                  <span v-if="cert.issuer" class="cv-cert-issuer editable-field" @click="openEditModal(`certification_${index}_issuer`, cert.issuer, 'Emisor')">{{ cert.issuer }}</span>
                 </div>
-                <div class="cv-cert-right">
+                <div class="cv-cert-right editable-field" @click="openEditModal(`certification_${index}_date`, cert.date, 'Fecha')">
                   {{ cert.date || 'Fecha no especificada' }}
                 </div>
               </div>
@@ -106,9 +106,9 @@
             <h2 class="cv-section-title">Proyectos</h2>
             <div class="cv-divider"></div>
             <div v-for="(project, index) in resume.structured_data.projects" :key="index" class="cv-project">
-              <h3>{{ project.name || 'Proyecto' }}</h3>
-              <p v-if="project.description" class="cv-project-description">{{ project.description }}</p>
-              <p v-if="project.technologies" class="cv-project-tech">Technologies: {{ project.technologies }}</p>
+              <h3 class="editable-field" @click="openEditModal(`project_${index}_name`, project.name, 'Nombre del Proyecto')">{{ project.name || 'Proyecto' }}</h3>
+              <p v-if="project.description" class="cv-project-description editable-field" @click="openEditModal(`project_${index}_description`, project.description, 'Descripción del Proyecto')">{{ project.description }}</p>
+              <p v-if="project.technologies" class="cv-project-tech editable-field" @click="openEditModal(`project_${index}_technologies`, project.technologies, 'Tecnologías')">Technologies: {{ project.technologies }}</p>
             </div>
           </div>
 
@@ -118,8 +118,8 @@
             <div class="cv-divider"></div>
             <div class="cv-languages">
               <div v-for="(lang, index) in resume.structured_data.languages" :key="index" class="cv-language">
-                <strong>{{ lang.language || 'Idioma' }}</strong>
-                <span v-if="lang.proficiency"> - {{ lang.proficiency }}</span>
+                <strong class="editable-field" @click="openEditModal(`language_${index}_name`, lang.language, 'Idioma')">{{ lang.language || 'Idioma' }}</strong>
+                <span v-if="lang.proficiency" class="editable-field" @click="openEditModal(`language_${index}_proficiency`, lang.proficiency, 'Nivel de Dominio')"> - {{ lang.proficiency }}</span>
               </div>
             </div>
           </div>
