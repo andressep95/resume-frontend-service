@@ -124,16 +124,17 @@ const logout = () => {
   width: 60px;
   height: 100vh;
   background: var(--surface-card);
-  border-right: 1px solid var(--surface-border);
   display: flex;
   flex-direction: column;
   transition: width 0.3s ease;
   z-index: 1000;
   box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+  border-top-right-radius: 12px;
+  border-bottom-right-radius: 12px;
 }
 
 .desktop-sidebar.expanded {
-  width: 250px;
+  width: 200px;
 }
 
 .mobile-sidebar {
