@@ -114,7 +114,7 @@ import Toast from 'primevue/toast'
 
 const router = useRouter()
 const toast = useToast()
-const resumes = ref([])
+const resumes = ref<any[]>([])
 const loading = ref(false)
 
 const loadResumes = async () => {
@@ -173,7 +173,7 @@ const downloadResume = (id: string) => {
 }
 
 const getStatusLabel = (status: string) => {
-  const labels = {
+  const labels: Record<string, string> = {
     'pending': 'Pendiente',
     'processing': 'Procesando',
     'completed': 'Completado',
@@ -183,7 +183,7 @@ const getStatusLabel = (status: string) => {
 }
 
 const getStatusSeverity = (status: string) => {
-  const severities = {
+  const severities: Record<string, string> = {
     'pending': 'warning',
     'processing': 'info',
     'completed': 'success',
@@ -193,7 +193,7 @@ const getStatusSeverity = (status: string) => {
 }
 
 const getLanguageLabel = (language: string) => {
-  const labels = {
+  const labels: Record<string, string> = {
     'es': 'Español',
     'en': 'English',
     'pt': 'Português',

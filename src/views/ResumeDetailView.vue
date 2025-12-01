@@ -59,7 +59,7 @@
         
         <template #content>
           <TabView class="data-tabs">
-            <TabPanel header="Información Personal">
+            <TabPanel value="0" header="Información Personal">
               <div class="personal-info">
                 <div class="info-grid">
                   <div class="info-item" v-if="resume.extracted_data.personal_info?.name">
@@ -82,7 +82,7 @@
               </div>
             </TabPanel>
             
-            <TabPanel header="Experiencia Laboral">
+            <TabPanel value="1" header="Experiencia Laboral">
               <div class="experience-section">
                 <div v-if="resume.extracted_data.work_experience?.length" class="experience-list">
                   <Card v-for="(exp, index) in resume.extracted_data.work_experience" :key="index" class="experience-card">
@@ -105,7 +105,7 @@
               </div>
             </TabPanel>
             
-            <TabPanel header="Educación">
+            <TabPanel value="2" header="Educación">
               <div class="education-section">
                 <div v-if="resume.extracted_data.education?.length" class="education-list">
                   <Card v-for="(edu, index) in resume.extracted_data.education" :key="index" class="education-card">
@@ -127,7 +127,7 @@
               </div>
             </TabPanel>
             
-            <TabPanel header="Habilidades">
+            <TabPanel value="3" header="Habilidades">
               <div class="skills-section">
                 <div v-if="resume.extracted_data.skills?.length" class="skills-list">
                   <Chip
@@ -143,7 +143,7 @@
               </div>
             </TabPanel>
             
-            <TabPanel header="Datos Completos">
+            <TabPanel value="4" header="Datos Completos">
               <div class="raw-data">
                 <pre>{{ JSON.stringify(resume.extracted_data, null, 2) }}</pre>
               </div>
@@ -189,7 +189,7 @@ import Toast from 'primevue/toast'
 const route = useRoute()
 const router = useRouter()
 const toast = useToast()
-const resume = ref(null)
+const resume = ref<any>(null)
 const loading = ref(false)
 
 const loadResumeDetail = async () => {
@@ -246,7 +246,7 @@ const loadResumeDetail = async () => {
 }
 
 const getStatusLabel = (status: string) => {
-  const labels = {
+  const labels: Record<string, string> = {
     'pending': 'Pendiente',
     'processing': 'Procesando',
     'completed': 'Completado',
@@ -256,7 +256,7 @@ const getStatusLabel = (status: string) => {
 }
 
 const getStatusSeverity = (status: string) => {
-  const severities = {
+  const severities: Record<string, string> = {
     'pending': 'warning',
     'processing': 'info',
     'completed': 'success',
@@ -266,7 +266,7 @@ const getStatusSeverity = (status: string) => {
 }
 
 const getLanguageLabel = (language: string) => {
-  const labels = {
+  const labels: Record<string, string> = {
     'es': 'Español',
     'en': 'English',
     'pt': 'Português',
