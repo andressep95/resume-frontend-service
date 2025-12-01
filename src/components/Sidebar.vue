@@ -130,13 +130,7 @@ const handleLogout = () => {
 .menu-label,
 .user-name,
 .user-email {
-  font-family:
-    'Inter',
-    'Segoe UI',
-    'Roboto',
-    'Helvetica Neue',
-    Arial,
-    sans-serif;
+  font-family: var(--font-family);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -147,17 +141,17 @@ const handleLogout = () => {
   left: 0;
   top: 0;
   height: 100vh;
-  background-color: #ffffff;
-  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+  background-color: var(--surface-0);
+  box-shadow: var(--shadow-2);
   display: flex;
   flex-direction: column;
   width: 70px;
   transition: width 0.3s ease;
   z-index: 1000;
   overflow: hidden;
-  border-top-right-radius: 10px;
-  border-bottom-right-radius: 10px;
-  border: 1px solid #e5e7eb;
+  border-top-right-radius: var(--border-radius);
+  border-bottom-right-radius: var(--border-radius);
+  border: 1px solid var(--surface-border);
   border-left: none;
 }
 
@@ -171,20 +165,20 @@ const handleLogout = () => {
   align-items: center;
   gap: 0.75rem;
   padding: 1.5rem 1.1rem;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--surface-border);
   min-height: 70px;
 }
 
 .logo-icon {
   font-size: 1.75rem;
-  color: #1f2937;
+  color: var(--primary-color);
   min-width: 1.75rem;
 }
 
 .logo-text {
   font-size: 1.2rem;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--text-color);
   white-space: nowrap;
   overflow: hidden;
 }
@@ -204,8 +198,8 @@ const handleLogout = () => {
   align-items: center;
   gap: 1rem;
   padding: 0.875rem 1rem;
-  border-radius: 0.65rem;
-  color: #4b5563;
+  border-radius: var(--border-radius);
+  color: var(--text-color-secondary);
   text-decoration: none;
   transition: all 0.2s ease;
   cursor: pointer;
@@ -213,38 +207,37 @@ const handleLogout = () => {
 }
 
 .sidebar-item:hover {
-  background-color: #f3f4f6;
+  background-color: var(--surface-100);
+  color: var(--text-color);
 }
 
 .sidebar-item.active {
-  background-color: #1f2937;
-  color: #ffffff;
-  box-shadow:
-    0 4px 6px -1px rgba(31, 41, 55, 0.2),
-    0 2px 4px -2px rgba(31, 41, 55, 0.2);
+  background-color: var(--primary-color);
+  color: var(--primary-color-text);
+  box-shadow: var(--shadow-3);
 }
 
 .sidebar-item.active .menu-icon {
-  color: #ffffff;
+  color: var(--primary-color-text);
 }
 
 .sidebar-item.active .menu-label {
-  color: #ffffff;
+  color: var(--primary-color-text);
 }
 
 .menu-icon {
   font-size: 1.25rem;
   min-width: 1.25rem;
-  color: #6b7280;
+  color: var(--text-color-secondary);
   transition: color 0.2s ease;
 }
 
 .sidebar-item:hover .menu-icon {
-  color: #1f2937;
+  color: var(--text-color);
 }
 
 .sidebar-item.active:hover .menu-icon {
-  color: #ffffff;
+  color: var(--primary-color-text);
 }
 
 .menu-label {
@@ -252,7 +245,11 @@ const handleLogout = () => {
   font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
-  color: #4b5563;
+  color: var(--text-color-secondary);
+}
+
+.sidebar-item:hover .menu-label {
+  color: var(--text-color);
 }
 
 /* FOOTER */
@@ -261,7 +258,7 @@ const handleLogout = () => {
   flex-direction: column;
   gap: 0.75rem;
   padding: 1rem;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid var(--surface-border);
 }
 
 .user-info {
@@ -275,6 +272,8 @@ const handleLogout = () => {
   flex-shrink: 0;
   width: 2.25rem !important;
   height: 2.25rem !important;
+  background-color: var(--primary-color) !important;
+  color: var(--primary-color-text) !important;
 }
 
 .user-details {
@@ -287,7 +286,7 @@ const handleLogout = () => {
 .user-name {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--text-color);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -295,7 +294,7 @@ const handleLogout = () => {
 
 .user-email {
   font-size: 0.75rem;
-  color: #6b7280;
+  color: var(--text-color-secondary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -316,11 +315,11 @@ const handleLogout = () => {
 }
 
 .sidebar-nav::-webkit-scrollbar-thumb {
-  background: #e5e7eb;
+  background: var(--surface-300);
   border-radius: 4px;
 }
 
 .sidebar-nav::-webkit-scrollbar-thumb:hover {
-  background: #d1d5db;
+  background: var(--surface-400);
 }
 </style>
