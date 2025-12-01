@@ -1,16 +1,5 @@
 <template>
   <div class="home-view">
-    <div class="header">
-      <h1>Procesador de CV</h1>
-      <Button
-        icon="pi pi-sign-out"
-        label="Cerrar Sesión"
-        severity="secondary"
-        @click="logout"
-        class="logout-btn"
-      />
-    </div>
-    
     <ResumeUploadForm @upload="handleUpload" />
     
     <div v-if="uploadResponse" class="upload-response">
@@ -32,7 +21,6 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useToast } from 'primevue/usetoast'
 import ResumeUploadForm from '../components/ResumeUploadForm.vue'
-import Button from 'primevue/button'
 import Toast from 'primevue/toast'
 
 const router = useRouter()
@@ -130,12 +118,7 @@ const handleUpload = async (data: { file: File; language: string; instructions: 
 
 
 
-// Logout
-const logout = () => {
-  localStorage.removeItem('authToken')
-  localStorage.removeItem('refreshToken')
-  router.push('/login')
-}
+
 
 onMounted(() => {
   checkAuth()
@@ -149,19 +132,7 @@ onMounted(() => {
   margin: 0 auto;
 }
 
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid var(--surface-border);
-}
 
-.header h1 {
-  margin: 0;
-  color: var(--text-color);
-}
 
 .upload-response, .error-message {
   margin: 2rem 0;
