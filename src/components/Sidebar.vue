@@ -344,5 +344,49 @@ const handleLogout = () => {
   .sidebar:hover {
     width: 280px;
   }
+  
+  .sidebar-header {
+    padding: 1rem;
+    min-height: 50px;
+  }
+  
+  .logo-icon {
+    font-size: 1.5rem;
+  }
+  
+  .logo-text {
+    font-size: 1rem;
+  }
+  
+  .sidebar-nav {
+    padding: 0.5rem;
+    gap: 0.3rem;
+  }
+  
+  .sidebar-item {
+    padding: 0.6rem 0.8rem;
+  }
+  
+  .sidebar-footer {
+    padding: 0.8rem;
+    gap: 0.4rem;
+  }
+  
+  .user-info {
+    gap: 0.5rem;
+  }
+  
+  .user-info :deep(.p-avatar) {
+    width: 1.8rem !important;
+    height: 1.8rem !important;
+  }
+  
+  .user-name {
+    font-size: 0.8rem;
+  }
+  
+  .user-email {
+    font-size: 0.7rem;
+  }
 }
 </style>
