@@ -94,8 +94,8 @@
                   <h3 class="editable-field" @click="openEditModal(`certification_${index}_name`, cert.name, 'Certificación')">{{ cert.name || 'Certificación' }}</h3>
                   <span v-if="cert.issuer" class="cv-cert-issuer editable-field" @click="openEditModal(`certification_${index}_issuer`, cert.issuer, 'Emisor')">{{ cert.issuer }}</span>
                 </div>
-                <div class="cv-cert-right editable-field" @click="openEditModal(`certification_${index}_date`, cert.date, 'Fecha')">
-                  {{ cert.date || 'Fecha no especificada' }}
+                <div class="cv-cert-right editable-field" @click="openEditModal(`certification_${index}_date`, cert.dateObtained, 'Fecha')">
+                  {{ cert.dateObtained || 'Fecha no especificada' }}
                 </div>
               </div>
             </div>
