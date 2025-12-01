@@ -138,16 +138,24 @@ const handleLogout = () => {
 
 .logo-icon {
   font-size: 1.75rem;
-  color: #1f2937;
+  color: var(--green-600);
   min-width: 1.75rem;
 }
 
 .logo-text {
   font-size: 1.2rem;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--green-600);
   white-space: nowrap;
   overflow: hidden;
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: all 0.3s ease;
+}
+
+.sidebar.expanded .logo-text {
+  opacity: 1;
+  transform: translateX(0);
 }
 
 /* NAVIGATION */
@@ -178,11 +186,11 @@ const handleLogout = () => {
 }
 
 .sidebar-item.active {
-  background-color: #1f2937;
+  background-color: var(--green-600);
   color: #ffffff;
   box-shadow:
-    0 4px 6px -1px rgba(31, 41, 55, 0.2),
-    0 2px 4px -2px rgba(31, 41, 55, 0.2);
+    0 4px 6px -1px rgba(34, 197, 94, 0.2),
+    0 2px 4px -2px rgba(34, 197, 94, 0.2);
 }
 
 .sidebar-item.active .menu-icon {
@@ -201,7 +209,7 @@ const handleLogout = () => {
 }
 
 .sidebar-item:hover .menu-icon {
-  color: #1f2937;
+  color: var(--green-600);
 }
 
 .sidebar-item.active:hover .menu-icon {
@@ -214,6 +222,14 @@ const handleLogout = () => {
   white-space: nowrap;
   overflow: hidden;
   color: #4b5563;
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: all 0.3s ease;
+}
+
+.sidebar.expanded .menu-label {
+  opacity: 1;
+  transform: translateX(0);
 }
 
 /* FOOTER */
@@ -243,6 +259,14 @@ const handleLogout = () => {
   flex-direction: column;
   gap: 0.25rem;
   overflow: hidden;
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: all 0.3s ease;
+}
+
+.sidebar.expanded .user-details {
+  opacity: 1;
+  transform: translateX(0);
 }
 
 .user-name {
@@ -265,6 +289,15 @@ const handleLogout = () => {
 .logout-btn {
   width: 100%;
   justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.sidebar:not(.expanded) .logout-btn {
+  padding: 0.5rem;
+}
+
+.sidebar:not(.expanded) .logout-btn :deep(.p-button-label) {
+  display: none;
 }
 
 /* SCROLLBAR */
