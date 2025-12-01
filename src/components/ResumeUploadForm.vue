@@ -36,6 +36,7 @@
 
         <div class="field">
           <label for="instructions">Instrucciones (opcional)</label>
+          <small class="help-text">Puede ingresar hasta {{ remainingChars }} caracteres en este campo</small>
           <Textarea
             id="instructions"
             v-model="form.instructions"
@@ -43,8 +44,11 @@
             placeholder="Ej: Extraer experiencia laboral de los últimos 5 años"
             class="instructions-textarea"
             :maxlength="500"
+            v-tooltip="isAtMaxLimit ? 'Ha alcanzado el máximo de caracteres permitidos en este campo' : ''"
           />
-          <small class="char-counter">{{ form.instructions.length }}/500 caracteres</small>
+          <small :class="['char-counter', { 'at-limit': isAtMaxLimit }]">
+            {{ remainingChars }} caracteres restantes
+          </small>
         </div>
 
         <Button
@@ -60,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { reactive, ref, computed } from 'vue'
 import Card from 'primevue/card'
 import FileUpload from 'primevue/fileupload'
 import Dropdown from 'primevue/dropdown'
@@ -88,6 +92,9 @@ const form = reactive<ResumeForm>({
 const errors = reactive<ResumeErrors>({})
 const loading = ref(false)
 const selectedFile = ref<File | null>(null)
+
+const remainingChars = computed(() => 500 - form.instructions.length)
+const isAtMaxLimit = computed(() => form.instructions.length >= 500)
 
 const languageOptions = [
   { label: 'Español', value: 'es' },
@@ -197,5 +204,11 @@ const handleSubmit = async () => {
   color: var(--text-color-secondary);
   font-size: 0.75rem;
   text-align: right;
+  transition: color 0.2s ease;
+}
+
+.char-counter.at-limit {
+  color: var(--red-500);
+  font-weight: 600;
 }
 </style>
