@@ -104,20 +104,18 @@ body {
 }
 
 #app {
-  height: 100vh;
-  overflow: hidden;
+  min-height: 100vh;
 }
 </style>
 
 <style scoped>
 .app-container {
-  height: 100vh;
+  min-height: 100vh;
   background-color: #f9fafb;
-  overflow: hidden;
 }
 
 .main-content {
-  height: 100vh;
+  min-height: 100vh;
   padding: 2rem;
   transition: margin-left 0.3s ease;
   overflow-y: auto;
@@ -125,7 +123,6 @@ body {
 
 .main-content:not(.with-sidebar) {
   padding: 0;
-  overflow: hidden;
 }
 
 /* Mobile Styles */
