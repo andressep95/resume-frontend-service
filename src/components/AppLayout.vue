@@ -1,21 +1,30 @@
 <template>
   <div class="layout-wrapper">
     <!-- Desktop Sidebar -->
-    <div class="desktop-sidebar">
+    <div class="desktop-sidebar" :class="{ 'expanded': isHovered }" @mouseenter="isHovered = true" @mouseleave="isHovered = false">
       <div class="sidebar-header">
-        <h3>CV Processor</h3>
+        <i class="pi pi-bars sidebar-icon" v-if="!isHovered"></i>
+        <h3 v-if="isHovered">CV Processor</h3>
       </div>
       
-      <Menu :model="menuItems" class="sidebar-menu" />
+      <div class="sidebar-menu">
+        <div 
+          v-for="item in menuItems" 
+          :key="item.label"
+          class="menu-item"
+          @click="item.command"
+          :class="{ 'active': isActiveRoute(item.route) }"
+        >
+          <i :class="item.icon" class="menu-icon"></i>
+          <span v-if="isHovered" class="menu-label">{{ item.label }}</span>
+        </div>
+      </div>
       
       <div class="sidebar-footer">
-        <Button
-          icon="pi pi-sign-out"
-          label="Cerrar Sesión"
-          severity="secondary"
-          @click="logout"
-          class="logout-button"
-        />
+        <div class="menu-item logout-item" @click="logout">
+          <i class="pi pi-sign-out menu-icon"></i>
+          <span v-if="isHovered" class="menu-label">Cerrar Sesión</span>
+        </div>
       </div>
     </div>
 
@@ -43,29 +52,14 @@
     </Sidebar>
 
     <div class="layout-main">
-      <Toolbar class="layout-toolbar">
-        <template #start>
-          <Button
-            icon="pi pi-bars"
-            severity="secondary"
-            text
-            @click="sidebarVisible = true"
-            class="menu-toggle"
-          />
-          <h2 class="page-title">{{ pageTitle }}</h2>
-        </template>
-        
-        <template #end>
-          <Button
-            icon="pi pi-sign-out"
-            label="Cerrar Sesión"
-            severity="secondary"
-            @click="logout"
-            class="desktop-logout"
-          />
-        </template>
-      </Toolbar>
-
+      <Button
+        icon="pi pi-bars"
+        severity="secondary"
+        text
+        @click="sidebarVisible = true"
+        class="mobile-menu-toggle"
+      />
+      
       <div class="layout-content">
         <router-view />
       </div>
@@ -74,21 +68,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import Sidebar from 'primevue/sidebar'
 import Menu from 'primevue/menu'
-import Toolbar from 'primevue/toolbar'
 import Button from 'primevue/button'
 
 const router = useRouter()
 const route = useRoute()
 const sidebarVisible = ref(false)
+const isHovered = ref(false)
 
 const menuItems = ref([
   {
     label: 'Procesar CV',
     icon: 'pi pi-upload',
+    route: '/',
     command: () => {
       router.push('/')
       sidebarVisible.value = false
@@ -97,6 +92,7 @@ const menuItems = ref([
   {
     label: 'Mis CVs',
     icon: 'pi pi-list',
+    route: '/my-resumes',
     command: () => {
       router.push('/my-resumes')
       sidebarVisible.value = false
@@ -104,18 +100,9 @@ const menuItems = ref([
   }
 ])
 
-const pageTitle = computed(() => {
-  switch (route.name) {
-    case 'home':
-      return 'Procesar CV'
-    case 'my-resumes':
-      return 'Mis CVs'
-    case 'resume-detail':
-      return 'Detalle del CV'
-    default:
-      return 'CV Processor'
-  }
-})
+const isActiveRoute = (routePath: string) => {
+  return route.path === routePath
+}
 
 const logout = () => {
   localStorage.removeItem('authToken')
@@ -131,12 +118,22 @@ const logout = () => {
 }
 
 .desktop-sidebar {
-  width: 280px;
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 60px;
+  height: 100vh;
   background: var(--surface-card);
   border-right: 1px solid var(--surface-border);
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  transition: width 0.3s ease;
+  z-index: 1000;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+}
+
+.desktop-sidebar.expanded {
+  width: 250px;
 }
 
 .mobile-sidebar {
@@ -146,59 +143,93 @@ const logout = () => {
 .sidebar-header {
   padding: 1rem;
   border-bottom: 1px solid var(--surface-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60px;
+}
+
+.sidebar-icon {
+  font-size: 1.2rem;
+  color: var(--primary-color);
 }
 
 .sidebar-header h3 {
   margin: 0;
   color: var(--primary-color);
+  font-size: 1.1rem;
+  white-space: nowrap;
 }
 
 .sidebar-menu {
-  border: none;
-  width: 100%;
   flex: 1;
+  padding: 1rem 0;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: 0;
+  margin: 0.25rem 0.5rem;
+}
+
+.menu-item:hover {
+  background: var(--surface-100);
+}
+
+.menu-item.active {
+  background: var(--primary-50);
+  color: var(--primary-color);
+  border-left: 3px solid var(--primary-color);
+}
+
+.menu-icon {
+  font-size: 1.1rem;
+  min-width: 20px;
+  text-align: center;
+}
+
+.menu-label {
+  margin-left: 0.75rem;
+  white-space: nowrap;
+  opacity: 1;
+  transition: opacity 0.2s ease;
 }
 
 .sidebar-footer {
-  padding: 1rem;
   border-top: 1px solid var(--surface-border);
-  margin-top: auto;
+  padding: 0.5rem 0;
 }
 
-.logout-button {
-  width: 100%;
+.logout-item {
+  color: var(--red-500);
+}
+
+.logout-item:hover {
+  background: var(--red-50);
 }
 
 .layout-main {
   flex: 1;
-  display: flex;
-  flex-direction: column;
+  margin-left: 60px;
+  transition: margin-left 0.3s ease;
 }
 
-.layout-toolbar {
-  border-radius: 0;
-  border-left: none;
-  border-right: none;
-  border-top: none;
-}
-
-.menu-toggle {
-  margin-right: 1rem;
-}
-
-.page-title {
-  margin: 0;
-  color: var(--text-color);
-}
-
-.desktop-logout {
+.mobile-menu-toggle {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 1001;
   display: none;
 }
 
 .layout-content {
-  flex: 1;
   padding: 2rem;
   background: var(--surface-ground);
+  min-height: 100vh;
 }
 
 @media (min-width: 768px) {
@@ -210,12 +241,8 @@ const logout = () => {
     display: none;
   }
   
-  .menu-toggle {
+  .mobile-menu-toggle {
     display: none;
-  }
-  
-  .desktop-logout {
-    display: inline-flex;
   }
 }
 
@@ -226,6 +253,14 @@ const logout = () => {
   
   .mobile-sidebar {
     display: block;
+  }
+  
+  .mobile-menu-toggle {
+    display: inline-flex;
+  }
+  
+  .layout-main {
+    margin-left: 0;
   }
 }
 </style>
