@@ -44,8 +44,11 @@ const toast = useToast()
 const currentForm = ref<FormType>('login')
 
 const handleLogin = async (data: LoginData) => {
+  console.log('🔄 Iniciando login con datos:', data)
   try {
     const apiUrl = import.meta.env.VITE_AUTH_API_URL || 'https://auth.cloudcentinel.com/api/v1/auth'
+    console.log('🌐 URL de API:', `${apiUrl}/login`)
+    
     const response = await fetch(`${apiUrl}/login`, {
       method: 'POST',
       headers: {
@@ -53,18 +56,20 @@ const handleLogin = async (data: LoginData) => {
       },
       body: JSON.stringify(data),
     })
+    
+    console.log('📡 Respuesta HTTP status:', response.status)
 
     if (response.ok) {
       const result = await response.json()
       
       console.log('Respuesta completa del login:', result)
 
-      // Guardar tokens según la especificación de la API
-      if (result.access_token) {
-        localStorage.setItem('authToken', result.access_token)
+      // Guardar tokens según la estructura real de la API
+      if (result.tokens?.access_token) {
+        localStorage.setItem('authToken', result.tokens.access_token)
       }
-      if (result.refresh_token) {
-        localStorage.setItem('refreshToken', result.refresh_token)
+      if (result.tokens?.refresh_token) {
+        localStorage.setItem('refreshToken', result.tokens.refresh_token)
       }
 
       toast.add({
