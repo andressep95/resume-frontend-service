@@ -20,52 +20,18 @@
         <div class="cv-container">
           <!-- Header -->
           <div class="cv-header">
-            <h1 class="cv-name editable-field" @click="startEdit('name')">
-              <input 
-                v-if="editingField === 'name'" 
-                v-model="editableData.name" 
-                @blur="stopEdit" 
-                @keyup.enter="stopEdit"
-                class="inline-input"
-                ref="editInput"
-              />
-              <span v-else>{{ editableData.name || 'Nombre no disponible' }}</span>
+            <h1 class="cv-name editable-field" @click="openEditModal('name', editableData.name, 'Nombre')">
+              {{ editableData.name || 'Nombre no disponible' }}
             </h1>
             <div class="cv-contact">
-              <span v-if="editableData.email" class="editable-field" @click="startEdit('email')">
-                <input 
-                  v-if="editingField === 'email'" 
-                  v-model="editableData.email" 
-                  @blur="stopEdit" 
-                  @keyup.enter="stopEdit"
-                  class="inline-input"
-                  ref="editInput"
-                />
-                <span v-else>{{ editableData.email }}</span>
+              <span v-if="editableData.email" class="editable-field" @click="openEditModal('email', editableData.email, 'Email')">
+                {{ editableData.email }}
               </span>
-              <span v-if="editableData.phone" class="editable-field" @click="startEdit('phone')">
-                 • 
-                <input 
-                  v-if="editingField === 'phone'" 
-                  v-model="editableData.phone" 
-                  @blur="stopEdit" 
-                  @keyup.enter="stopEdit"
-                  class="inline-input"
-                  ref="editInput"
-                />
-                <span v-else>{{ editableData.phone }}</span>
+              <span v-if="editableData.phone" class="editable-field" @click="openEditModal('phone', editableData.phone, 'Teléfono')">
+                 • {{ editableData.phone }}
               </span>
-              <span v-if="editableData.address" class="editable-field" @click="startEdit('address')">
-                 • 
-                <input 
-                  v-if="editingField === 'address'" 
-                  v-model="editableData.address" 
-                  @blur="stopEdit" 
-                  @keyup.enter="stopEdit"
-                  class="inline-input"
-                  ref="editInput"
-                />
-                <span v-else>{{ editableData.address }}</span>
+              <span v-if="editableData.address" class="editable-field" @click="openEditModal('address', editableData.address, 'Dirección')">
+                 • {{ editableData.address }}
               </span>
             </div>
           </div>
@@ -77,10 +43,10 @@
             <div v-for="(edu, index) in resume.structured_data.education" :key="index" class="cv-education">
               <div class="cv-edu-header">
                 <div class="cv-edu-left">
-                  <h3>{{ edu.institution || 'Institución no especificada' }}</h3>
-                  <h4>{{ edu.degree || 'Título no especificado' }}</h4>
+                  <h3 class="editable-field" @click="openEditModal(`education_${index}_institution`, edu.institution, 'Institución')">{{ edu.institution || 'Institución no especificada' }}</h3>
+                  <h4 class="editable-field" @click="openEditModal(`education_${index}_degree`, edu.degree, 'Título')">{{ edu.degree || 'Título no especificado' }}</h4>
                 </div>
-                <div class="cv-edu-right">
+                <div class="cv-edu-right editable-field" @click="openEditModal(`education_${index}_period`, edu.period?.end, 'Fecha')">
                   {{ edu.period?.end || 'Presente' }}
                 </div>
               </div>
@@ -92,7 +58,7 @@
             <h2 class="cv-section-title">Habilidades Técnicas</h2>
             <div class="cv-divider"></div>
             <div class="cv-skills-grid">
-              <span v-for="(skill, index) in resume.structured_data.technicalSkills.skills" :key="index" class="cv-skill-item">
+              <span v-for="(skill, index) in resume.structured_data.technicalSkills.skills" :key="index" class="cv-skill-item editable-field" @click="openEditModal(`skill_${index}`, skill, 'Habilidad')">
                 • {{ skill }}
               </span>
             </div>
@@ -105,16 +71,16 @@
             <div v-for="(exp, index) in resume.structured_data.professionalExperience" :key="index" class="cv-experience">
               <div class="cv-exp-header">
                 <div class="cv-exp-left">
-                  <h3>{{ exp.position || 'Posición no especificada' }}</h3>
+                  <h3 class="editable-field" @click="openEditModal(`experience_${index}_position`, exp.position, 'Posición')">{{ exp.position || 'Posición no especificada' }}</h3>
                 </div>
-                <div class="cv-exp-right">
+                <div class="cv-exp-right editable-field" @click="openEditModal(`experience_${index}_period`, `${exp.period?.start} - ${exp.period?.end}`, 'Período')">
                   {{ exp.period?.start || 'Fecha inicio' }} - {{ exp.period?.end || 'Presente' }}
                 </div>
               </div>
               <ul v-if="exp.responsibilities?.length" class="cv-responsibilities">
-                <li v-for="(resp, i) in exp.responsibilities" :key="i">{{ resp }}</li>
+                <li v-for="(resp, i) in exp.responsibilities" :key="i" class="editable-field" @click="openEditModal(`experience_${index}_resp_${i}`, resp, 'Responsabilidad')">{{ resp }}</li>
               </ul>
-              <div class="cv-company">{{ exp.company || 'Empresa no especificada' }}</div>
+              <div class="cv-company editable-field" @click="openEditModal(`experience_${index}_company`, exp.company, 'Empresa')">{{ exp.company || 'Empresa no especificada' }}</div>
             </div>
           </div>
 
@@ -177,6 +143,36 @@
       </Card>
     </div>
 
+    <!-- Edit Modal -->
+    <Dialog 
+      v-model:visible="showEditModal" 
+      :header="`Editar ${currentFieldLabel}`" 
+      modal 
+      :style="{ width: '400px' }"
+    >
+      <div class="edit-modal-content">
+        <label :for="currentField">{{ currentFieldLabel }}</label>
+        <InputText 
+          v-if="!isTextarea"
+          :id="currentField"
+          v-model="currentValue" 
+          class="edit-input"
+          @keyup.enter="saveEdit"
+        />
+        <Textarea 
+          v-else
+          :id="currentField"
+          v-model="currentValue" 
+          rows="3"
+          class="edit-input"
+        />
+      </div>
+      <template #footer>
+        <Button label="Cancelar" severity="secondary" @click="closeEditModal" />
+        <Button label="Guardar" @click="saveEdit" />
+      </template>
+    </Dialog>
+
     <Toast />
   </div>
 </template>
@@ -193,14 +189,20 @@ import TabPanel from 'primevue/tabpanel'
 import Chip from 'primevue/chip'
 import ProgressSpinner from 'primevue/progressspinner'
 import Toast from 'primevue/toast'
+import Dialog from 'primevue/dialog'
+import InputText from 'primevue/inputtext'
+import Textarea from 'primevue/textarea'
 
 const route = useRoute()
 const router = useRouter()
 const toast = useToast()
 const resume = ref<any>(null)
 const loading = ref(false)
-const editingField = ref<string | null>(null)
-const editInput = ref<HTMLInputElement | null>(null)
+const showEditModal = ref(false)
+const currentField = ref('')
+const currentFieldLabel = ref('')
+const currentValue = ref('')
+const isTextarea = ref(false)
 const editableData = reactive({
   name: '',
   email: '',
@@ -314,17 +316,33 @@ const formatFileSize = (bytes: number) => {
   return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i]
 }
 
-const startEdit = async (field: string) => {
-  editingField.value = field
-  await nextTick()
-  if (editInput.value) {
-    editInput.value.focus()
-    editInput.value.select()
-  }
+const openEditModal = (field: string, value: string, label: string) => {
+  currentField.value = field
+  currentFieldLabel.value = label
+  currentValue.value = value || ''
+  isTextarea.value = field.includes('resp') || field.includes('description')
+  showEditModal.value = true
 }
 
-const stopEdit = () => {
-  editingField.value = null
+const closeEditModal = () => {
+  showEditModal.value = false
+  currentField.value = ''
+  currentValue.value = ''
+}
+
+const saveEdit = () => {
+  // Update the editable data based on field
+  if (currentField.value === 'name') {
+    editableData.name = currentValue.value
+  } else if (currentField.value === 'email') {
+    editableData.email = currentValue.value
+  } else if (currentField.value === 'phone') {
+    editableData.phone = currentValue.value
+  } else if (currentField.value === 'address') {
+    editableData.address = currentValue.value
+  }
+  // Here you would normally send the update to the backend
+  closeEditModal()
 }
 
 onMounted(() => {
@@ -712,32 +730,40 @@ onMounted(() => {
 /* Editable Fields */
 .editable-field {
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: all 0.2s ease;
   padding: 2px 4px;
   border-radius: 3px;
+  position: relative;
 }
 
 .editable-field:hover {
   background-color: rgba(16, 185, 129, 0.1);
+  transform: scale(1.02);
 }
 
-.inline-input {
-  background: transparent;
-  border: 1px solid #10b981;
-  border-radius: 3px;
-  padding: 2px 4px;
-  font-family: inherit;
-  font-size: inherit;
-  font-weight: inherit;
-  color: inherit;
+.editable-field:hover::after {
+  content: '✏️';
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  font-size: 10px;
+  opacity: 0.7;
+}
+
+/* Edit Modal */
+.edit-modal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.edit-modal-content label {
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.edit-input {
   width: 100%;
-  min-width: 150px;
-}
-
-.inline-input:focus {
-  outline: none;
-  border-color: #059669;
-  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
 }
 
 @media print {
