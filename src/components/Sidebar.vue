@@ -47,6 +47,7 @@ import { ref, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import Button from 'primevue/button'
 import Avatar from 'primevue/avatar'
+import { decodeJWT } from '../utils/auth'
 
 const router = useRouter()
 const route = useRoute()
@@ -75,11 +76,32 @@ const menuItems = [
   }
 ]
 
-const username = computed(() => 'Usuario')
-const email = computed(() => 'usuario@ejemplo.com')
+const username = computed(() => {
+  const token = localStorage.getItem('authToken')
+  if (token) {
+    const decoded = decodeJWT(token)
+    return decoded?.email?.split('@')[0] || 'Usuario'
+  }
+  return 'Usuario'
+})
+
+const email = computed(() => {
+  const token = localStorage.getItem('authToken')
+  if (token) {
+    const decoded = decodeJWT(token)
+    return decoded?.email || 'usuario@ejemplo.com'
+  }
+  return 'usuario@ejemplo.com'
+})
 
 const userInitials = computed(() => {
-  return 'U'
+  const name = username.value || 'U'
+  return name
+    .split(' ')
+    .map((n: string) => n[0])
+    .join('')
+    .toUpperCase()
+    .substring(0, 2)
 })
 
 const isActive = (path: string) => {
@@ -102,6 +124,23 @@ const handleLogout = () => {
 </script>
 
 <style scoped>
+/* TIPOGRAFÍA GLOBAL */
+.sidebar,
+.logo-text,
+.menu-label,
+.user-name,
+.user-email {
+  font-family:
+    'Inter',
+    'Segoe UI',
+    'Roboto',
+    'Helvetica Neue',
+    Arial,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 /* SIDEBAR PRINCIPAL */
 .sidebar {
   position: fixed;
@@ -138,24 +177,16 @@ const handleLogout = () => {
 
 .logo-icon {
   font-size: 1.75rem;
-  color: var(--green-600);
+  color: #1f2937;
   min-width: 1.75rem;
 }
 
 .logo-text {
   font-size: 1.2rem;
   font-weight: 700;
-  color: var(--green-600);
+  color: #1f2937;
   white-space: nowrap;
   overflow: hidden;
-  opacity: 0;
-  transform: translateX(-10px);
-  transition: all 0.3s ease;
-}
-
-.sidebar.expanded .logo-text {
-  opacity: 1;
-  transform: translateX(0);
 }
 
 /* NAVIGATION */
@@ -186,11 +217,11 @@ const handleLogout = () => {
 }
 
 .sidebar-item.active {
-  background-color: var(--green-600);
+  background-color: #1f2937;
   color: #ffffff;
   box-shadow:
-    0 4px 6px -1px rgba(34, 197, 94, 0.2),
-    0 2px 4px -2px rgba(34, 197, 94, 0.2);
+    0 4px 6px -1px rgba(31, 41, 55, 0.2),
+    0 2px 4px -2px rgba(31, 41, 55, 0.2);
 }
 
 .sidebar-item.active .menu-icon {
@@ -209,7 +240,7 @@ const handleLogout = () => {
 }
 
 .sidebar-item:hover .menu-icon {
-  color: var(--green-600);
+  color: #1f2937;
 }
 
 .sidebar-item.active:hover .menu-icon {
@@ -222,14 +253,6 @@ const handleLogout = () => {
   white-space: nowrap;
   overflow: hidden;
   color: #4b5563;
-  opacity: 0;
-  transform: translateX(-10px);
-  transition: all 0.3s ease;
-}
-
-.sidebar.expanded .menu-label {
-  opacity: 1;
-  transform: translateX(0);
 }
 
 /* FOOTER */
@@ -259,14 +282,6 @@ const handleLogout = () => {
   flex-direction: column;
   gap: 0.25rem;
   overflow: hidden;
-  opacity: 0;
-  transform: translateX(-10px);
-  transition: all 0.3s ease;
-}
-
-.sidebar.expanded .user-details {
-  opacity: 1;
-  transform: translateX(0);
 }
 
 .user-name {
@@ -289,15 +304,6 @@ const handleLogout = () => {
 .logout-btn {
   width: 100%;
   justify-content: center;
-  transition: all 0.3s ease;
-}
-
-.sidebar:not(.expanded) .logout-btn {
-  padding: 0.5rem;
-}
-
-.sidebar:not(.expanded) .logout-btn :deep(.p-button-label) {
-  display: none;
 }
 
 /* SCROLLBAR */
