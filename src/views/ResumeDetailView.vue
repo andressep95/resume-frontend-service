@@ -20,11 +20,53 @@
         <div class="cv-container">
           <!-- Header -->
           <div class="cv-header">
-            <h1 class="cv-name">{{ resume.structured_data?.header?.name || 'Nombre no disponible' }}</h1>
+            <h1 class="cv-name editable-field" @click="startEdit('name')">
+              <input 
+                v-if="editingField === 'name'" 
+                v-model="editableData.name" 
+                @blur="stopEdit" 
+                @keyup.enter="stopEdit"
+                class="inline-input"
+                ref="editInput"
+              />
+              <span v-else>{{ editableData.name || 'Nombre no disponible' }}</span>
+            </h1>
             <div class="cv-contact">
-              <span v-if="resume.structured_data?.header?.contact?.email">{{ resume.structured_data.header.contact.email }}</span>
-              <span v-if="resume.structured_data?.header?.contact?.phone"> • {{ resume.structured_data.header.contact.phone }}</span>
-              <span v-if="resume.structured_data?.header?.contact?.address"> • {{ resume.structured_data.header.contact.address }}</span>
+              <span v-if="editableData.email" class="editable-field" @click="startEdit('email')">
+                <input 
+                  v-if="editingField === 'email'" 
+                  v-model="editableData.email" 
+                  @blur="stopEdit" 
+                  @keyup.enter="stopEdit"
+                  class="inline-input"
+                  ref="editInput"
+                />
+                <span v-else>{{ editableData.email }}</span>
+              </span>
+              <span v-if="editableData.phone" class="editable-field" @click="startEdit('phone')">
+                 • 
+                <input 
+                  v-if="editingField === 'phone'" 
+                  v-model="editableData.phone" 
+                  @blur="stopEdit" 
+                  @keyup.enter="stopEdit"
+                  class="inline-input"
+                  ref="editInput"
+                />
+                <span v-else>{{ editableData.phone }}</span>
+              </span>
+              <span v-if="editableData.address" class="editable-field" @click="startEdit('address')">
+                 • 
+                <input 
+                  v-if="editingField === 'address'" 
+                  v-model="editableData.address" 
+                  @blur="stopEdit" 
+                  @keyup.enter="stopEdit"
+                  class="inline-input"
+                  ref="editInput"
+                />
+                <span v-else>{{ editableData.address }}</span>
+              </span>
             </div>
           </div>
 
@@ -140,7 +182,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, reactive, nextTick, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useToast } from 'primevue/usetoast'
 import Card from 'primevue/card'
@@ -157,6 +199,14 @@ const router = useRouter()
 const toast = useToast()
 const resume = ref<any>(null)
 const loading = ref(false)
+const editingField = ref<string | null>(null)
+const editInput = ref<HTMLInputElement | null>(null)
+const editableData = reactive({
+  name: '',
+  email: '',
+  phone: '',
+  address: ''
+})
 
 const loadResumeDetail = async () => {
   const token = localStorage.getItem('authToken')
@@ -183,6 +233,11 @@ const loadResumeDetail = async () => {
     
     if (response.ok) {
       resume.value = await response.json()
+      // Populate editable data
+      editableData.name = resume.value.structured_data?.header?.name || ''
+      editableData.email = resume.value.structured_data?.header?.contact?.email || ''
+      editableData.phone = resume.value.structured_data?.header?.contact?.phone || ''
+      editableData.address = resume.value.structured_data?.header?.contact?.address || ''
     } else if (response.status === 404) {
       toast.add({
         severity: 'error',
@@ -257,6 +312,19 @@ const formatFileSize = (bytes: number) => {
   const sizes = ['Bytes', 'KB', 'MB', 'GB']
   const i = Math.floor(Math.log(bytes) / Math.log(1024))
   return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i]
+}
+
+const startEdit = async (field: string) => {
+  editingField.value = field
+  await nextTick()
+  if (editInput.value) {
+    editInput.value.focus()
+    editInput.value.select()
+  }
+}
+
+const stopEdit = () => {
+  editingField.value = null
 }
 
 onMounted(() => {
@@ -639,6 +707,37 @@ onMounted(() => {
 .cv-language {
   font-size: 11pt;
   color: #000;
+}
+
+/* Editable Fields */
+.editable-field {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  padding: 2px 4px;
+  border-radius: 3px;
+}
+
+.editable-field:hover {
+  background-color: rgba(16, 185, 129, 0.1);
+}
+
+.inline-input {
+  background: transparent;
+  border: 1px solid #10b981;
+  border-radius: 3px;
+  padding: 2px 4px;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  color: inherit;
+  width: 100%;
+  min-width: 150px;
+}
+
+.inline-input:focus {
+  outline: none;
+  border-color: #059669;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
 }
 
 @media print {
