@@ -52,12 +52,8 @@ const router = createRouter({
 
 // Guard de navegación para rutas protegidas
 router.beforeEach(async (to, from, next) => {
-  console.log('Router guard - to:', to.name, to.path, to.query)
-  console.log('All routes:', router.getRoutes().map(r => ({ name: r.name, path: r.path })))
-  
   // Permitir acceso a rutas públicas sin verificación
   if (to.name === 'verify-email' || to.name === 'register-success') {
-    console.log('Public route allowed:', to.name)
     next()
     return
   }

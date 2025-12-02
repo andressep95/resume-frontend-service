@@ -70,15 +70,6 @@ const closeMobileSidebar = () => {
 const checkAuth = () => {
   const token = localStorage.getItem('authToken')
   isAuthenticated.value = !!token
-  
-  console.log('Checking auth:', { token: !!token, path: route.path })
-  
-  const publicRoutes = ['/login', '/verify-email', '/register-success']
-  const isPublicRoute = publicRoutes.some(publicRoute => route.path.startsWith(publicRoute))
-  
-  if (!token && !isPublicRoute) {
-    router.push('/login')
-  }
 }
 
 // Watcher para detectar cambios de ruta
