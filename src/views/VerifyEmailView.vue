@@ -61,7 +61,7 @@ const verifyEmail = async () => {
   }
 
   try {
-    const response = await fetch(`https://api.cloudcentinel.com/api/v1/auth/verify-email/${token}`)
+    const response = await fetch(`https://auth.cloudcentinel.com/api/v1/auth/verify-email/${token}`)
     
     if (response.ok) {
       verified.value = true
