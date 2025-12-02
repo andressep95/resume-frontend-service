@@ -11,7 +11,7 @@ const getAuthHeaders = () => {
 export const resumeApi = {
   // Get user's resume list
   async getMyResumes() {
-    const response = await fetch(`${API_BASE_URL}/resume/my-resumes`, {
+    const response = await fetch(`${API_BASE_URL}/my-resumes`, {
       headers: getAuthHeaders()
     })
     if (!response.ok) throw new Error('Failed to fetch resumes')
@@ -20,7 +20,7 @@ export const resumeApi = {
 
   // Get resume detail
   async getResumeDetail(requestId: string) {
-    const response = await fetch(`${API_BASE_URL}/resume/${requestId}`, {
+    const response = await fetch(`${API_BASE_URL}/${requestId}`, {
       headers: getAuthHeaders()
     })
     if (!response.ok) throw new Error('Failed to fetch resume detail')
@@ -29,7 +29,7 @@ export const resumeApi = {
 
   // Get resume versions
   async getResumeVersions(requestId: string) {
-    const response = await fetch(`${API_BASE_URL}/resume/${requestId}/versions`, {
+    const response = await fetch(`${API_BASE_URL}/${requestId}/versions`, {
       headers: getAuthHeaders()
     })
     if (!response.ok) throw new Error('Failed to fetch versions')
@@ -38,7 +38,7 @@ export const resumeApi = {
 
   // Create new version
   async createVersion(requestId: string, structuredData: any) {
-    const response = await fetch(`${API_BASE_URL}/resume/${requestId}/versions`, {
+    const response = await fetch(`${API_BASE_URL}/${requestId}/versions`, {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify({ structured_data: structuredData })
@@ -49,7 +49,7 @@ export const resumeApi = {
 
   // Activate version
   async activateVersion(requestId: string, versionId: number) {
-    const response = await fetch(`${API_BASE_URL}/resume/${requestId}/versions/${versionId}/activate`, {
+    const response = await fetch(`${API_BASE_URL}/${requestId}/versions/${versionId}/activate`, {
       method: 'PUT',
       headers: getAuthHeaders()
     })
@@ -59,7 +59,7 @@ export const resumeApi = {
 
   // Get version detail
   async getVersionDetail(versionId: number) {
-    const response = await fetch(`${API_BASE_URL}/resume/versions/${versionId}`, {
+    const response = await fetch(`${API_BASE_URL}/versions/${versionId}`, {
       headers: getAuthHeaders()
     })
     if (!response.ok) throw new Error('Failed to fetch version detail')
