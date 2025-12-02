@@ -17,6 +17,14 @@
           class="version-tag"
         />
         <Button
+          icon="pi pi-download"
+          label="Descargar PDF"
+          severity="success"
+          @click="downloadPDF"
+          :loading="downloadingPDF"
+          class="download-button"
+        />
+        <Button
           icon="pi pi-history"
           label="Ver Versiones"
           severity="secondary"
@@ -57,7 +65,7 @@
           <div v-if="resume.structured_data?.education?.length" class="cv-section">
             <h2 class="cv-section-title">Educación</h2>
             <div class="cv-divider"></div>
-            <div v-for="(edu, index) in resume.structured_data.education" :key="index" class="cv-education">
+            <div v-for="(edu, index) in resume.structured_data.education" :key="index" class="cv-education atomic-block">
               <div class="cv-edu-header">
                 <div class="cv-edu-left">
                   <h3 class="editable-field" @click="openEditModal(`education_${index}_institution`, edu.institution, 'Institución')">{{ edu.institution || 'Institución no especificada' }}</h3>
@@ -85,7 +93,7 @@
           <div v-if="resume.structured_data?.professionalExperience?.length" class="cv-section">
             <h2 class="cv-section-title">Experiencia Profesional</h2>
             <div class="cv-divider"></div>
-            <div v-for="(exp, index) in resume.structured_data.professionalExperience" :key="index" class="cv-experience">
+            <div v-for="(exp, index) in resume.structured_data.professionalExperience" :key="index" class="cv-experience atomic-block">
               <div class="cv-exp-header">
                 <div class="cv-exp-left">
                   <h3 class="editable-field" @click="openEditModal(`experience_${index}_position`, exp.position, 'Posición')">{{ exp.position || 'Posición no especificada' }}</h3>
@@ -105,7 +113,7 @@
           <div v-if="resume.structured_data?.certifications?.length" class="cv-section">
             <h2 class="cv-section-title">Certificaciones</h2>
             <div class="cv-divider"></div>
-            <div v-for="(cert, index) in resume.structured_data.certifications" :key="index" class="cv-certification">
+            <div v-for="(cert, index) in resume.structured_data.certifications" :key="index" class="cv-certification atomic-block">
               <div class="cv-cert-header">
                 <div class="cv-cert-left">
                   <h3 class="editable-field" @click="openEditModal(`certification_${index}_name`, cert.name, 'Certificación')">{{ cert.name || 'Certificación' }}</h3>
@@ -122,7 +130,7 @@
           <div v-if="resume.structured_data?.projects?.length" class="cv-section">
             <h2 class="cv-section-title">Proyectos</h2>
             <div class="cv-divider"></div>
-            <div v-for="(project, index) in resume.structured_data.projects" :key="index" class="cv-project">
+            <div v-for="(project, index) in resume.structured_data.projects" :key="index" class="cv-project atomic-block">
               <h3 class="editable-field" @click="openEditModal(`project_${index}_name`, project.name, 'Nombre del Proyecto')">{{ project.name || 'Proyecto' }}</h3>
               <p v-if="project.description" class="cv-project-description editable-field" @click="openEditModal(`project_${index}_description`, project.description, 'Descripción del Proyecto')">{{ project.description }}</p>
               <p v-if="project.technologies" class="cv-project-tech editable-field" @click="openEditModal(`project_${index}_technologies`, project.technologies, 'Tecnologías')">Technologies: {{ project.technologies }}</p>
@@ -362,6 +370,7 @@ const loadingVersions = ref(false)
 const showVersionsDialog = ref(false)
 const versions = ref<any[]>([])
 const currentVersionNumber = ref<number>(1)
+const downloadingPDF = ref(false)
 const editableData = reactive({
   name: '',
   email: '',
@@ -697,6 +706,70 @@ const deleteVersion = async (versionId: number) => {
       detail: 'Error al eliminar la versión',
       life: 5000
     })
+  }
+}
+
+const downloadPDF = async () => {
+  if (!resume.value) return
+  
+  downloadingPDF.value = true
+  
+  try {
+    // Import html2pdf dynamically
+    const html2pdf = (await import('html2pdf.js')).default
+    
+    // Get the CV container element
+    const element = document.querySelector('.cv-container') as HTMLElement
+    if (!element) {
+      throw new Error('CV container not found')
+    }
+    
+    // Generate filename
+    const name = editableData.name || 'CV'
+    const filename = `${name.replace(/\s+/g, '_')}_CV.pdf`
+    
+    // PDF options with page break control
+    const options = {
+      margin: [10, 10, 10, 10] as [number, number, number, number],
+      filename,
+      image: { type: 'jpeg' as const, quality: 0.98 },
+      html2canvas: { 
+        scale: 2,
+        useCORS: true,
+        letterRendering: true
+      },
+      jsPDF: { 
+        unit: 'mm', 
+        format: 'a4', 
+        orientation: 'portrait' as const
+      },
+      pagebreak: { 
+        mode: ['avoid-all', 'css', 'legacy'],
+        before: '.page-break-before',
+        after: '.page-break-after',
+        avoid: '.atomic-block'
+      }
+    }
+    
+    // Generate and download PDF
+    await html2pdf().set(options).from(element).save()
+    
+    toast.add({
+      severity: 'success',
+      summary: 'Éxito',
+      detail: 'PDF descargado correctamente',
+      life: 3000
+    })
+  } catch (error) {
+    console.error('Error generating PDF:', error)
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'Error al generar el PDF',
+      life: 5000
+    })
+  } finally {
+    downloadingPDF.value = false
   }
 }
 
@@ -1240,6 +1313,22 @@ onMounted(() => {
   text-align: right;
 }
 
+/* PDF Generation Styles */
+.atomic-block {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.page-break-before {
+  page-break-before: always;
+  break-before: page;
+}
+
+.page-break-after {
+  page-break-after: always;
+  break-after: page;
+}
+
 @media print {
   .cv-container {
     padding: 1rem;
@@ -1252,6 +1341,11 @@ onMounted(() => {
   
   .cv-section-title {
     font-size: 11pt;
+  }
+  
+  .atomic-block {
+    page-break-inside: avoid;
+    break-inside: avoid;
   }
 }
 
