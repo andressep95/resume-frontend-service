@@ -226,19 +226,24 @@ const loadResumeDetail = async () => {
   
   loading.value = true
   try {
+    console.log('🔄 Cargando detalle del CV con ID:', requestId)
     resume.value = await resumeApi.getResumeDetail(requestId as string)
+    console.log('✅ Respuesta del detalle del CV:', resume.value)
+    
     // Populate editable data
     editableData.name = resume.value.structured_data?.header?.name || ''
     editableData.email = resume.value.structured_data?.header?.contact?.email || ''
     editableData.phone = resume.value.structured_data?.header?.contact?.phone || ''
     editableData.address = resume.value.structured_data?.header?.contact?.address || ''
+    
+    console.log('📝 Datos editables poblados:', editableData)
   } catch (error) {
-    console.error('Error loading resume detail:', error)
+    console.error('❌ Error loading resume detail:', error)
     toast.add({
       severity: 'error',
       summary: 'Error',
-      detail: 'Error al cargar el detalle del CV',
-      life: 5000
+      detail: error instanceof Error ? error.message : 'Error al cargar el detalle del CV',
+      life: 8000
     })
   } finally {
     loading.value = false
