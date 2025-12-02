@@ -126,7 +126,8 @@ const handleResetPassword = async () => {
       })
       router.push('/login')
     } else {
-      const errorData = await response.json()
+      const errorData = await response.json().catch(() => ({ message: 'Error desconocido' }))
+      console.error('Reset password error:', errorData)
       toast.add({
         severity: 'error',
         summary: 'Error',
