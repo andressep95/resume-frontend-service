@@ -71,8 +71,8 @@
                   <h3 class="editable-field" @click="openEditModal(`education_${index}_institution`, edu.institution, 'Institución')">{{ edu.institution || 'Institución no especificada' }}</h3>
                   <h4 class="editable-field" @click="openEditModal(`education_${index}_degree`, edu.degree, 'Título')">{{ edu.degree || 'Título no especificado' }}</h4>
                 </div>
-                <div class="cv-edu-right editable-field" @click="openEditModal(`education_${index}_period`, edu.period?.end, 'Fecha')">
-                  {{ edu.period?.end || 'Presente' }}
+                <div class="cv-edu-right editable-field" @click="openEditModal(`education_${index}_graduationDate`, edu.graduationDate, 'Fecha de Graduación')">
+                  {{ edu.graduationDate || 'Presente' }}
                 </div>
               </div>
             </div>
@@ -543,6 +543,8 @@ const saveEdit = async () => {
       updatedStructuredData.education[eduIndex].institution = value
     } else if (fieldType === 'degree') {
       updatedStructuredData.education[eduIndex].degree = value
+    } else if (fieldType === 'graduationDate') {
+      updatedStructuredData.education[eduIndex].graduationDate = value
     }
   } else if (field.startsWith('certification_')) {
     const parts = field.split('_')
