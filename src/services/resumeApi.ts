@@ -84,5 +84,15 @@ export const resumeApi = {
     })
     if (!response.ok) throw new Error('Failed to fetch version detail')
     return response.json()
+  },
+
+  // Delete version
+  async deleteVersion(versionId: number) {
+    const response = await fetch(`${API_BASE_URL}/versions/${versionId}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders()
+    })
+    if (!response.ok) throw new Error('Failed to delete version')
+    return response.json()
   }
 }

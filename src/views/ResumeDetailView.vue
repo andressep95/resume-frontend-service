@@ -245,6 +245,13 @@
                 @click="activateVersion(data.id)"
                 v-tooltip="'Activar versión'"
               />
+              <Button
+                icon="pi pi-trash"
+                severity="danger"
+                text
+                @click="deleteVersion(data.id)"
+                v-tooltip="'Eliminar versión'"
+              />
             </div>
           </template>
         </Column>
@@ -287,6 +294,13 @@
                     size="small"
                     @click="activateVersion(version.id)"
                     v-tooltip="'Activar versión'"
+                  />
+                  <Button
+                    icon="pi pi-trash"
+                    severity="danger"
+                    size="small"
+                    @click="deleteVersion(version.id)"
+                    v-tooltip="'Eliminar versión'"
                   />
                 </div>
               </div>
@@ -651,6 +665,35 @@ const activateVersion = async (versionId: number) => {
       severity: 'error',
       summary: 'Error',
       detail: 'Error al activar la versión',
+      life: 5000
+    })
+  }
+}
+
+const deleteVersion = async (versionId: number) => {
+  if (!confirm('¿Estás seguro de que quieres eliminar esta versión?')) return
+  
+  try {
+    await resumeApi.deleteVersion(versionId)
+    
+    toast.add({
+      severity: 'success',
+      summary: 'Éxito',
+      detail: 'Versión eliminada correctamente',
+      life: 3000
+    })
+    
+    // Reload versions and resume
+    await Promise.all([
+      loadVersions(),
+      loadResumeDetail()
+    ])
+  } catch (error) {
+    console.error('Error deleting version:', error)
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'Error al eliminar la versión',
       life: 5000
     })
   }
