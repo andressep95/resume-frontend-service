@@ -195,9 +195,12 @@
       v-model:visible="showVersionsDialog" 
       header="Historial de Versiones" 
       modal 
-      :style="{ width: '700px' }"
+      :style="{ width: isMobile ? '95vw' : '700px' }"
+      class="versions-dialog"
     >
+      <!-- Desktop Table -->
       <DataTable 
+        v-if="!isMobile"
         :value="versions" 
         :loading="loadingVersions"
         class="versions-table"
@@ -246,6 +249,65 @@
           </template>
         </Column>
       </DataTable>
+
+      <!-- Mobile Cards -->
+      <div v-else class="versions-mobile">
+        <div v-if="loadingVersions" class="loading-versions">
+          <ProgressSpinner size="small" />
+          <span>Cargando versiones...</span>
+        </div>
+        <div v-else-if="versions.length === 0" class="no-versions">
+          <i class="pi pi-info-circle"></i>
+          <span>No hay versiones disponibles</span>
+        </div>
+        <div v-else class="version-cards">
+          <Card v-for="version in versions" :key="version.id" class="version-card">
+            <template #content>
+              <div class="version-card-header">
+                <div class="version-info">
+                  <Tag 
+                    :value="`v${version.version_number}`" 
+                    :severity="version.is_active ? 'success' : 'secondary'"
+                    class="version-number"
+                  />
+                  <h4 class="version-name">{{ version.version_name || 'Sin nombre' }}</h4>
+                </div>
+                <div class="version-actions-mobile">
+                  <Button
+                    icon="pi pi-eye"
+                    severity="info"
+                    size="small"
+                    @click="viewVersion(version.id)"
+                    v-tooltip="'Ver versión'"
+                  />
+                  <Button
+                    v-if="!version.is_active"
+                    icon="pi pi-check"
+                    severity="success"
+                    size="small"
+                    @click="activateVersion(version.id)"
+                    v-tooltip="'Activar versión'"
+                  />
+                </div>
+              </div>
+              <div class="version-meta">
+                <div class="meta-item">
+                  <span class="meta-label">Creado por:</span>
+                  <Tag 
+                    :value="version.created_by === 'system' ? 'Sistema' : 'Usuario'" 
+                    :severity="version.created_by === 'system' ? 'info' : 'warning'"
+                    size="small"
+                  />
+                </div>
+                <div class="meta-item">
+                  <span class="meta-label">Fecha:</span>
+                  <span class="meta-value">{{ formatDate(version.created_at) }}</span>
+                </div>
+              </div>
+            </template>
+          </Card>
+        </div>
+      </div>
     </Dialog>
 
     <Toast />
@@ -253,7 +315,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, nextTick, onMounted } from 'vue'
+import { ref, reactive, nextTick, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useToast } from 'primevue/usetoast'
 import Card from 'primevue/card'
@@ -290,6 +352,10 @@ const editableData = reactive({
   email: '',
   phone: '',
   address: ''
+})
+
+const isMobile = computed(() => {
+  return window.innerWidth <= 768
 })
 
 const loadResumeDetail = async () => {
@@ -1040,6 +1106,96 @@ onMounted(() => {
   gap: 0.5rem;
 }
 
+/* Mobile Versions Styles */
+.versions-dialog .p-dialog-content {
+  padding: 1rem;
+}
+
+.versions-mobile {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.loading-versions,
+.no-versions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 2rem;
+  color: var(--text-color-secondary);
+}
+
+.version-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.version-card {
+  border: 1px solid var(--surface-border);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.version-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+.version-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.version-info {
+  flex: 1;
+}
+
+.version-number {
+  margin-bottom: 0.5rem;
+}
+
+.version-name {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.version-actions-mobile {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.version-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.meta-label {
+  font-size: 0.875rem;
+  color: var(--text-color-secondary);
+  font-weight: 500;
+}
+
+.meta-value {
+  font-size: 0.875rem;
+  color: var(--text-color);
+  text-align: right;
+}
+
 @media print {
   .cv-container {
     padding: 1rem;
@@ -1088,6 +1244,19 @@ onMounted(() => {
   .cv-exp-period,
   .cv-edu-period {
     margin-top: 0.3rem;
+  }
+  
+  .detail-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .header-right {
+    justify-content: space-between;
+  }
+  
+  .versions-button {
+    font-size: 0.875rem;
   }
 }
 </style>
