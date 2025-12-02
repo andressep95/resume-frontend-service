@@ -43,11 +43,14 @@ export const resumeApi = {
   },
 
   // Create new version
-  async createVersion(requestId: string, structuredData: any) {
+  async createVersion(requestId: string, structuredData: any, versionName?: string) {
     const response = await fetch(`${API_BASE_URL}/${requestId}/versions`, {
       method: 'POST',
       headers: getAuthHeaders(),
-      body: JSON.stringify({ structured_data: structuredData })
+      body: JSON.stringify({ 
+        structured_data: structuredData,
+        version_name: versionName || 'Nueva versión'
+      })
     })
     if (!response.ok) throw new Error('Failed to create version')
     return response.json()

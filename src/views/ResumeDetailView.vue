@@ -394,34 +394,87 @@ const closeEditModal = () => {
 }
 
 const saveEdit = async () => {
-  // Update the editable data based on field
-  if (currentField.value === 'name') {
-    editableData.name = currentValue.value
-  } else if (currentField.value === 'email') {
-    editableData.email = currentValue.value
-  } else if (currentField.value === 'phone') {
-    editableData.phone = currentValue.value
-  } else if (currentField.value === 'address') {
-    editableData.address = currentValue.value
+  // Clone current structured data
+  let updatedStructuredData = JSON.parse(JSON.stringify(resume.value.structured_data))
+  
+  // Update based on field type
+  const field = currentField.value
+  const value = currentValue.value
+  
+  if (field === 'name') {
+    editableData.name = value
+    updatedStructuredData.header = updatedStructuredData.header || {}
+    updatedStructuredData.header.name = value
+  } else if (field === 'email') {
+    editableData.email = value
+    updatedStructuredData.header = updatedStructuredData.header || {}
+    updatedStructuredData.header.contact = updatedStructuredData.header.contact || {}
+    updatedStructuredData.header.contact.email = value
+  } else if (field === 'phone') {
+    editableData.phone = value
+    updatedStructuredData.header = updatedStructuredData.header || {}
+    updatedStructuredData.header.contact = updatedStructuredData.header.contact || {}
+    updatedStructuredData.header.contact.phone = value
+  } else if (field === 'address') {
+    editableData.address = value
+    updatedStructuredData.header = updatedStructuredData.header || {}
+    updatedStructuredData.header.contact = updatedStructuredData.header.contact || {}
+    updatedStructuredData.header.contact.address = value
+  } else if (field.startsWith('skill_')) {
+    const index = parseInt(field.split('_')[1])
+    updatedStructuredData.technicalSkills = updatedStructuredData.technicalSkills || { skills: [] }
+    updatedStructuredData.technicalSkills.skills[index] = value
+  } else if (field.startsWith('experience_')) {
+    const parts = field.split('_')
+    const expIndex = parseInt(parts[1])
+    const fieldType = parts[2]
+    
+    updatedStructuredData.professionalExperience = updatedStructuredData.professionalExperience || []
+    if (fieldType === 'position') {
+      updatedStructuredData.professionalExperience[expIndex].position = value
+    } else if (fieldType === 'company') {
+      updatedStructuredData.professionalExperience[expIndex].company = value
+    } else if (fieldType.startsWith('resp')) {
+      const respIndex = parseInt(parts[3])
+      updatedStructuredData.professionalExperience[expIndex].responsibilities[respIndex] = value
+    }
+  } else if (field.startsWith('education_')) {
+    const parts = field.split('_')
+    const eduIndex = parseInt(parts[1])
+    const fieldType = parts[2]
+    
+    updatedStructuredData.education = updatedStructuredData.education || []
+    if (fieldType === 'institution') {
+      updatedStructuredData.education[eduIndex].institution = value
+    } else if (fieldType === 'degree') {
+      updatedStructuredData.education[eduIndex].degree = value
+    }
+  } else if (field.startsWith('certification_')) {
+    const parts = field.split('_')
+    const certIndex = parseInt(parts[1])
+    const fieldType = parts[2]
+    
+    updatedStructuredData.certifications = updatedStructuredData.certifications || []
+    if (fieldType === 'name') {
+      updatedStructuredData.certifications[certIndex].name = value
+    } else if (fieldType === 'issuer') {
+      updatedStructuredData.certifications[certIndex].issuer = value
+    }
   }
   
   // Create new version with updated data
   try {
-    const updatedStructuredData = {
-      ...resume.value.structured_data,
-      header: {
-        ...resume.value.structured_data?.header,
-        name: editableData.name,
-        contact: {
-          ...resume.value.structured_data?.header?.contact,
-          email: editableData.email,
-          phone: editableData.phone,
-          address: editableData.address
-        }
-      }
+    console.log('🔄 Creando nueva versión con datos:', updatedStructuredData)
+    
+    const versionData = {
+      structured_data: updatedStructuredData,
+      version_name: `Edición de ${currentFieldLabel.value}`
     }
     
-    await resumeApi.createVersion(route.params.id as string, updatedStructuredData)
+    await resumeApi.createVersion(route.params.id as string, updatedStructuredData, `Edición de ${currentFieldLabel.value}`)
+    
+    // Update local data
+    resume.value.structured_data = updatedStructuredData
     
     toast.add({
       severity: 'success',
@@ -433,11 +486,11 @@ const saveEdit = async () => {
     // Reload resume to get updated version info
     await loadResumeDetail()
   } catch (error) {
-    console.error('Error creating version:', error)
+    console.error('❌ Error creating version:', error)
     toast.add({
       severity: 'error',
       summary: 'Error',
-      detail: 'Error al guardar los cambios',
+      detail: error instanceof Error ? error.message : 'Error al guardar los cambios',
       life: 5000
     })
   }
