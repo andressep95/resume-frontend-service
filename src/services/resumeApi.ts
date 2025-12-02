@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_RESUME_API_URL || 'https://api.cloudcentinel.com/resume/api/v1'
+const API_BASE_URL = import.meta.env.VITE_RESUME_API_URL || 'https://api.cloudcentinel.com/resume/api/v1/resume'
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem('authToken')
