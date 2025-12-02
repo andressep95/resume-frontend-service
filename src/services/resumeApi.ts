@@ -8,6 +8,19 @@ const getAuthHeaders = () => {
   }
 }
 
+const handleApiError = async (response: Response) => {
+  if (response.status === 401) {
+    // Token expired, redirect to login
+    localStorage.removeItem('authToken')
+    localStorage.removeItem('refreshToken')
+    window.location.href = '/login'
+    throw new Error('Sesión expirada')
+  }
+  
+  const errorData = await response.json().catch(() => ({ message: 'Error desconocido' }))
+  throw new Error(`Error ${response.status}: ${errorData.message || 'Error del servidor'}`)
+}
+
 export const resumeApi = {
   // Get user's resume list
   async getMyResumes() {
@@ -15,8 +28,7 @@ export const resumeApi = {
       headers: getAuthHeaders()
     })
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ message: 'Error desconocido' }))
-      throw new Error(`Error ${response.status}: ${errorData.message || 'Failed to fetch resumes'}`)
+      await handleApiError(response)
     }
     return response.json()
   },
@@ -27,8 +39,7 @@ export const resumeApi = {
       headers: getAuthHeaders()
     })
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ message: 'Error desconocido' }))
-      throw new Error(`Error ${response.status}: ${errorData.message || 'Failed to fetch resume detail'}`)
+      await handleApiError(response)
     }
     return response.json()
   },
