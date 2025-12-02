@@ -1,13 +1,30 @@
 <template>
   <div class="resume-detail-view">
     <div class="detail-header">
-      <Button
-        icon="pi pi-arrow-left"
-        label="Volver"
-        severity="secondary"
-        @click="$router.push('/my-resumes')"
-        class="back-button"
-      />
+      <div class="header-left">
+        <Button
+          icon="pi pi-arrow-left"
+          label="Volver"
+          severity="secondary"
+          @click="$router.push('/my-resumes')"
+          class="back-button"
+        />
+      </div>
+      <div class="header-right" v-if="resume">
+        <Tag 
+          :value="`Versión ${currentVersionNumber || 1}`" 
+          severity="info" 
+          class="version-tag"
+        />
+        <Button
+          icon="pi pi-history"
+          label="Ver Versiones"
+          severity="secondary"
+          @click="loadVersions"
+          :loading="loadingVersions"
+          class="versions-button"
+        />
+      </div>
     </div>
 
     <div v-if="loading" class="loading-container">
@@ -173,6 +190,64 @@
       </template>
     </Dialog>
 
+    <!-- Versions Dialog -->
+    <Dialog 
+      v-model:visible="showVersionsDialog" 
+      header="Historial de Versiones" 
+      modal 
+      :style="{ width: '700px' }"
+    >
+      <DataTable 
+        :value="versions" 
+        :loading="loadingVersions"
+        class="versions-table"
+      >
+        <Column field="version_number" header="Versión" sortable>
+          <template #body="{ data }">
+            <Tag 
+              :value="`v${data.version_number}`" 
+              :severity="data.is_active ? 'success' : 'secondary'"
+            />
+          </template>
+        </Column>
+        <Column field="version_name" header="Nombre" sortable />
+        <Column field="created_by" header="Creado por" sortable>
+          <template #body="{ data }">
+            <Tag 
+              :value="data.created_by === 'system' ? 'Sistema' : 'Usuario'" 
+              :severity="data.created_by === 'system' ? 'info' : 'warning'"
+            />
+          </template>
+        </Column>
+        <Column field="created_at" header="Fecha" sortable>
+          <template #body="{ data }">
+            {{ formatDate(data.created_at) }}
+          </template>
+        </Column>
+        <Column header="Acciones">
+          <template #body="{ data }">
+            <div class="version-actions">
+              <Button
+                icon="pi pi-eye"
+                severity="info"
+                text
+                @click="viewVersion(data.id)"
+                v-tooltip="'Ver versión'"
+              />
+              <Button
+                v-if="!data.is_active"
+                icon="pi pi-check"
+                severity="success"
+                text
+                @click="activateVersion(data.id)"
+                v-tooltip="'Activar versión'"
+              />
+            </div>
+          </template>
+        </Column>
+      </DataTable>
+    </Dialog>
+
     <Toast />
   </div>
 </template>
@@ -192,6 +267,8 @@ import Toast from 'primevue/toast'
 import Dialog from 'primevue/dialog'
 import InputText from 'primevue/inputtext'
 import Textarea from 'primevue/textarea'
+import DataTable from 'primevue/datatable'
+import Column from 'primevue/column'
 import { resumeApi } from '../services/resumeApi'
 
 const route = useRoute()
@@ -204,6 +281,10 @@ const currentField = ref('')
 const currentFieldLabel = ref('')
 const currentValue = ref('')
 const isTextarea = ref(false)
+const loadingVersions = ref(false)
+const showVersionsDialog = ref(false)
+const versions = ref<any[]>([])
+const currentVersionNumber = ref<number>(1)
 const editableData = reactive({
   name: '',
   email: '',
@@ -348,6 +429,9 @@ const saveEdit = async () => {
       detail: 'Nueva versión creada correctamente',
       life: 3000
     })
+    
+    // Reload resume to get updated version info
+    await loadResumeDetail()
   } catch (error) {
     console.error('Error creating version:', error)
     toast.add({
@@ -359,6 +443,91 @@ const saveEdit = async () => {
   }
   
   closeEditModal()
+}
+
+const loadVersions = async () => {
+  if (!route.params.id) return
+  
+  loadingVersions.value = true
+  try {
+    const response = await resumeApi.getResumeVersions(route.params.id as string)
+    versions.value = response.versions || []
+    showVersionsDialog.value = true
+  } catch (error) {
+    console.error('Error loading versions:', error)
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'Error al cargar las versiones',
+      life: 5000
+    })
+  } finally {
+    loadingVersions.value = false
+  }
+}
+
+const viewVersion = async (versionId: number) => {
+  try {
+    const versionData = await resumeApi.getVersionDetail(versionId)
+    // Update the current view with version data
+    resume.value = {
+      ...resume.value,
+      structured_data: versionData.structured_data
+    }
+    
+    // Update editable data
+    editableData.name = versionData.structured_data?.header?.name || ''
+    editableData.email = versionData.structured_data?.header?.contact?.email || ''
+    editableData.phone = versionData.structured_data?.header?.contact?.phone || ''
+    editableData.address = versionData.structured_data?.header?.contact?.address || ''
+    
+    currentVersionNumber.value = versionData.version_number
+    showVersionsDialog.value = false
+    
+    toast.add({
+      severity: 'info',
+      summary: 'Versión cargada',
+      detail: `Mostrando versión ${versionData.version_number}`,
+      life: 3000
+    })
+  } catch (error) {
+    console.error('Error viewing version:', error)
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'Error al cargar la versión',
+      life: 5000
+    })
+  }
+}
+
+const activateVersion = async (versionId: number) => {
+  if (!route.params.id) return
+  
+  try {
+    await resumeApi.activateVersion(route.params.id as string, versionId)
+    
+    toast.add({
+      severity: 'success',
+      summary: 'Éxito',
+      detail: 'Versión activada correctamente',
+      life: 3000
+    })
+    
+    // Reload versions and resume
+    await Promise.all([
+      loadVersions(),
+      loadResumeDetail()
+    ])
+  } catch (error) {
+    console.error('Error activating version:', error)
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'Error al activar la versión',
+      life: 5000
+    })
+  }
 }
 
 onMounted(() => {
@@ -780,6 +949,35 @@ onMounted(() => {
 
 .edit-input {
   width: 100%;
+}
+
+/* Version Management */
+.detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.header-left,
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.version-tag {
+  font-weight: 600;
+}
+
+.versions-table {
+  margin-top: 1rem;
+}
+
+.version-actions {
+  display: flex;
+  gap: 0.5rem;
 }
 
 @media print {
