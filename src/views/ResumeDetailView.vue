@@ -421,13 +421,16 @@ const saveEdit = async () => {
     updatedStructuredData.header.contact = updatedStructuredData.header.contact || {}
     updatedStructuredData.header.contact.address = value
   } else if (field.startsWith('skill_')) {
-    const index = parseInt(field.split('_')[1])
+    const parts = field.split('_')
+    const index = parseInt(parts[1] || '0')
     updatedStructuredData.technicalSkills = updatedStructuredData.technicalSkills || { skills: [] }
     updatedStructuredData.technicalSkills.skills[index] = value
   } else if (field.startsWith('experience_')) {
     const parts = field.split('_')
-    const expIndex = parseInt(parts[1])
+    const expIndex = parseInt(parts[1] || '0')
     const fieldType = parts[2]
+    
+    if (!fieldType) return
     
     updatedStructuredData.professionalExperience = updatedStructuredData.professionalExperience || []
     if (fieldType === 'position') {
@@ -435,13 +438,15 @@ const saveEdit = async () => {
     } else if (fieldType === 'company') {
       updatedStructuredData.professionalExperience[expIndex].company = value
     } else if (fieldType.startsWith('resp')) {
-      const respIndex = parseInt(parts[3])
+      const respIndex = parseInt(parts[3] || '0')
       updatedStructuredData.professionalExperience[expIndex].responsibilities[respIndex] = value
     }
   } else if (field.startsWith('education_')) {
     const parts = field.split('_')
-    const eduIndex = parseInt(parts[1])
+    const eduIndex = parseInt(parts[1] || '0')
     const fieldType = parts[2]
+    
+    if (!fieldType) return
     
     updatedStructuredData.education = updatedStructuredData.education || []
     if (fieldType === 'institution') {
@@ -451,8 +456,10 @@ const saveEdit = async () => {
     }
   } else if (field.startsWith('certification_')) {
     const parts = field.split('_')
-    const certIndex = parseInt(parts[1])
+    const certIndex = parseInt(parts[1] || '0')
     const fieldType = parts[2]
+    
+    if (!fieldType) return
     
     updatedStructuredData.certifications = updatedStructuredData.certifications || []
     if (fieldType === 'name') {
