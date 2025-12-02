@@ -744,9 +744,7 @@ const downloadPDF = async () => {
         orientation: 'portrait' as const
       },
       pagebreak: { 
-        mode: ['avoid-all', 'css', 'legacy'],
-        before: '.page-break-before',
-        after: '.page-break-after',
+        mode: ['css', 'legacy'],
         avoid: '.atomic-block'
       }
     }
