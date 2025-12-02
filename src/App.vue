@@ -74,7 +74,7 @@ const checkAuth = () => {
   console.log('Checking auth:', { token: !!token, path: route.path })
   
   const publicRoutes = ['/login', '/verify-email', '/register-success']
-  const isPublicRoute = publicRoutes.some(route => route.path.startsWith(route))
+  const isPublicRoute = publicRoutes.some(publicRoute => route.path.startsWith(publicRoute))
   
   if (!token && !isPublicRoute) {
     router.push('/login')
