@@ -115,15 +115,11 @@ const handleRegister = async (data: RegisterData) => {
       const result = await response.json()
       console.log('Respuesta completa del registro:', result)
       
-      toast.add({
-        severity: 'success',
-        summary: 'Éxito',
-        detail: 'Registro exitoso. Ahora puedes iniciar sesión.',
-        life: 5000,
+      // Redirigir a la página de éxito con el email
+      router.push({
+        name: 'register-success',
+        query: { email: data.email }
       })
-
-      // Cambiar al formulario de login
-      currentForm.value = 'login'
     } else {
       const error = await response.json()
       toast.add({

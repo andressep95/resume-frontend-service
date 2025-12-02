@@ -11,10 +11,11 @@
 
           <div v-else-if="verified" class="success-state">
             <i class="pi pi-check-circle success-icon"></i>
-            <h3>¡Email verificado!</h3>
+            <h3>¡Cuenta activada!</h3>
             <p>Tu cuenta ha sido verificada exitosamente.</p>
+            <p class="sub-text">Ya puedes iniciar sesión con tu email y contraseña.</p>
             <Button 
-              label="Ir al Login" 
+              label="Iniciar Sesión" 
               @click="$router.push('/login')"
               class="action-button"
             />
@@ -129,6 +130,11 @@ onMounted(() => {
   margin: 0;
   color: var(--text-color-secondary);
   line-height: 1.5;
+}
+
+.sub-text {
+  font-size: 0.9rem;
+  margin-top: 0.5rem !important;
 }
 
 .action-button {
