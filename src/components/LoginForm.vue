@@ -32,6 +32,10 @@
 
         <Button type="submit" label="Iniciar Sesión" :loading="loading" class="submit-button" />
 
+        <div class="forgot-password-link">
+          <router-link to="/forgot-password">¿Olvidaste tu contraseña?</router-link>
+        </div>
+
         <div class="register-link">
           <span>¿No tienes cuenta? </span>
           <Button link label="Regístrate" @click="$emit('switchToRegister')" />
@@ -129,6 +133,21 @@ const handleSubmit = async () => {
 
 .submit-button {
   margin-top: 1rem;
+}
+
+.forgot-password-link {
+  text-align: center;
+  margin-top: 0.5rem;
+}
+
+.forgot-password-link a {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.forgot-password-link a:hover {
+  text-decoration: underline;
 }
 
 .register-link {

@@ -5,6 +5,8 @@ import MyResumesView from '../views/MyResumesView.vue'
 import ResumeDetailView from '../views/ResumeDetailView.vue'
 import VerifyEmailView from '../views/VerifyEmailView.vue'
 import RegisterSuccessView from '../views/RegisterSuccessView.vue'
+import ForgotPasswordView from '../views/ForgotPasswordView.vue'
+import ResetPasswordView from '../views/ResetPasswordView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -43,6 +45,16 @@ const router = createRouter({
       component: RegisterSuccessView,
     },
     {
+      path: '/forgot-password',
+      name: 'forgot-password',
+      component: ForgotPasswordView,
+    },
+    {
+      path: '/reset-password',
+      name: 'reset-password',
+      component: ResetPasswordView,
+    },
+    {
       path: '/:pathMatch(.*)*',
       name: 'not-found',
       redirect: '/login'
@@ -53,7 +65,8 @@ const router = createRouter({
 // Guard de navegación para rutas protegidas
 router.beforeEach(async (to, from, next) => {
   // Permitir acceso a rutas públicas sin verificación
-  if (to.name === 'verify-email' || to.name === 'register-success') {
+  const publicRoutes = ['verify-email', 'register-success', 'forgot-password', 'reset-password']
+  if (publicRoutes.includes(to.name as string)) {
     next()
     return
   }
