@@ -71,6 +71,12 @@ router.beforeEach(async (to, from, next) => {
     }
   }
   
+  // Permitir acceso a rutas públicas sin redirección
+  if (to.name === 'verify-email' || to.name === 'register-success') {
+    next()
+    return
+  }
+  
   next()
 })
 
