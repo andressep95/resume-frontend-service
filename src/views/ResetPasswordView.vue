@@ -128,11 +128,14 @@ const handleResetPassword = async () => {
     } else {
       const errorData = await response.json().catch(() => ({ message: 'Error desconocido' }))
       console.error('Reset password error:', errorData)
+      const isExpiredToken = errorData.error?.includes('expired') || errorData.message?.includes('expired')
       toast.add({
         severity: 'error',
         summary: 'Error',
-        detail: errorData.message || 'Error al resetear la contraseña',
-        life: 5000
+        detail: isExpiredToken 
+          ? 'El enlace ha expirado. Solicita uno nuevo desde "Olvidé mi contraseña"'
+          : errorData.message || errorData.error || 'Error al resetear la contraseña',
+        life: 8000
       })
     }
   } catch (error) {
@@ -223,5 +226,30 @@ onMounted(() => {
 
 .back-to-login a:hover {
   text-decoration: underline;
+}
+
+/* Fix Password component eye icon positioning */
+:deep(.p-password) {
+  position: relative;
+  width: 100%;
+}
+
+:deep(.p-password .p-inputtext) {
+  width: 100%;
+  padding-right: 3rem;
+}
+
+:deep(.p-password .p-password-toggle-mask) {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-color-secondary);
+  cursor: pointer;
+  z-index: 1;
+}
+
+:deep(.p-password .p-password-toggle-mask:hover) {
+  color: var(--primary-color);
 }
 </style>

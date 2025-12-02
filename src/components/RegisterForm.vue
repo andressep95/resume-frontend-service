@@ -196,4 +196,29 @@ const handleSubmit = async () => {
 .p-error {
   color: var(--red-500);
 }
+
+/* Fix Password component eye icon positioning */
+:deep(.p-password) {
+  position: relative;
+  width: 100%;
+}
+
+:deep(.p-password .p-inputtext) {
+  width: 100%;
+  padding-right: 3rem;
+}
+
+:deep(.p-password .p-password-toggle-mask) {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-color-secondary);
+  cursor: pointer;
+  z-index: 1;
+}
+
+:deep(.p-password .p-password-toggle-mask:hover) {
+  color: var(--primary-color);
+}
 </style>
