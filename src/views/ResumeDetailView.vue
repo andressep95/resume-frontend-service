@@ -195,6 +195,7 @@
       v-model:visible="showVersionsDialog" 
       header="Historial de Versiones" 
       modal 
+      dismissableMask
       :style="{ width: isMobile ? '95vw' : '700px' }"
       class="versions-dialog"
     >
