@@ -192,6 +192,7 @@ import Toast from 'primevue/toast'
 import Dialog from 'primevue/dialog'
 import InputText from 'primevue/inputtext'
 import Textarea from 'primevue/textarea'
+import { resumeApi } from '../services/resumeApi'
 
 const route = useRoute()
 const router = useRouter()
@@ -225,42 +226,18 @@ const loadResumeDetail = async () => {
   
   loading.value = true
   try {
-    const apiUrl = import.meta.env.VITE_RESUME_API_URL || 'https://api.cloudcentinel.com/resume/api/v1/resume'
-    const response = await fetch(`${apiUrl}/${requestId}`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    })
-    
-    if (response.ok) {
-      resume.value = await response.json()
-      // Populate editable data
-      editableData.name = resume.value.structured_data?.header?.name || ''
-      editableData.email = resume.value.structured_data?.header?.contact?.email || ''
-      editableData.phone = resume.value.structured_data?.header?.contact?.phone || ''
-      editableData.address = resume.value.structured_data?.header?.contact?.address || ''
-    } else if (response.status === 404) {
-      toast.add({
-        severity: 'error',
-        summary: 'No encontrado',
-        detail: 'El CV solicitado no existe',
-        life: 5000
-      })
-    } else {
-      toast.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'Error al cargar el detalle del CV',
-        life: 5000
-      })
-    }
+    resume.value = await resumeApi.getResumeDetail(requestId as string)
+    // Populate editable data
+    editableData.name = resume.value.structured_data?.header?.name || ''
+    editableData.email = resume.value.structured_data?.header?.contact?.email || ''
+    editableData.phone = resume.value.structured_data?.header?.contact?.phone || ''
+    editableData.address = resume.value.structured_data?.header?.contact?.address || ''
   } catch (error) {
     console.error('Error loading resume detail:', error)
     toast.add({
       severity: 'error',
       summary: 'Error',
-      detail: 'Error de conexión',
+      detail: 'Error al cargar el detalle del CV',
       life: 5000
     })
   } finally {
@@ -330,7 +307,7 @@ const closeEditModal = () => {
   currentValue.value = ''
 }
 
-const saveEdit = () => {
+const saveEdit = async () => {
   // Update the editable data based on field
   if (currentField.value === 'name') {
     editableData.name = currentValue.value
@@ -341,7 +318,41 @@ const saveEdit = () => {
   } else if (currentField.value === 'address') {
     editableData.address = currentValue.value
   }
-  // Here you would normally send the update to the backend
+  
+  // Create new version with updated data
+  try {
+    const updatedStructuredData = {
+      ...resume.value.structured_data,
+      header: {
+        ...resume.value.structured_data?.header,
+        name: editableData.name,
+        contact: {
+          ...resume.value.structured_data?.header?.contact,
+          email: editableData.email,
+          phone: editableData.phone,
+          address: editableData.address
+        }
+      }
+    }
+    
+    await resumeApi.createVersion(route.params.id as string, updatedStructuredData)
+    
+    toast.add({
+      severity: 'success',
+      summary: 'Éxito',
+      detail: 'Nueva versión creada correctamente',
+      life: 3000
+    })
+  } catch (error) {
+    console.error('Error creating version:', error)
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'Error al guardar los cambios',
+      life: 5000
+    })
+  }
+  
   closeEditModal()
 }
 

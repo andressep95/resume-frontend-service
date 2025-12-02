@@ -104,6 +104,7 @@ import Column from 'primevue/column'
 import Button from 'primevue/button'
 import Tag from 'primevue/tag'
 import Toast from 'primevue/toast'
+import { resumeApi } from '../services/resumeApi'
 
 const router = useRouter()
 const toast = useToast()
@@ -119,36 +120,15 @@ const loadResumes = async () => {
 
   loading.value = true
   try {
-    const apiUrl =
-      import.meta.env.VITE_RESUME_API_URL || 'https://api.cloudcentinel.com/resume/api/v1/resume'
-    const response = await fetch(`${apiUrl}/my-resumes`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-    })
-
-    if (response.ok) {
-      const data = await response.json()
-      console.log('Respuesta de la API:', data)
-      resumes.value = data.resumes || []
-    } else {
-      const errorData = await response.json().catch(() => ({ message: 'Error desconocido' }))
-      console.error('Error del servidor:', response.status, errorData)
-      
-      toast.add({
-        severity: 'error',
-        summary: `Error ${response.status}`,
-        detail: errorData.message || 'Error al cargar los CVs',
-        life: 5000,
-      })
-    }
+    const data = await resumeApi.getMyResumes()
+    console.log('Respuesta de la API:', data)
+    resumes.value = data.resumes || data || []
   } catch (error) {
     console.error('Error loading resumes:', error)
     toast.add({
       severity: 'error',
       summary: 'Error',
-      detail: 'Error de conexión',
+      detail: 'Error al cargar los CVs',
       life: 5000,
     })
   } finally {
