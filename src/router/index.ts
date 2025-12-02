@@ -47,6 +47,12 @@ const router = createRouter({
 
 // Guard de navegación para rutas protegidas
 router.beforeEach(async (to, from, next) => {
+  // Permitir acceso a rutas públicas sin verificación
+  if (to.name === 'verify-email' || to.name === 'register-success') {
+    next()
+    return
+  }
+
   const token = localStorage.getItem('authToken')
 
   if (to.meta.requiresAuth) {
@@ -69,12 +75,6 @@ router.beforeEach(async (to, from, next) => {
       next('/')
       return
     }
-  }
-  
-  // Permitir acceso a rutas públicas sin redirección
-  if (to.name === 'verify-email' || to.name === 'register-success') {
-    next()
-    return
   }
   
   next()
