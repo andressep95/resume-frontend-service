@@ -52,7 +52,7 @@ const verified = ref(false)
 const errorMessage = ref('')
 
 const verifyEmail = async () => {
-  const token = route.params.token as string
+  const token = route.query.token as string
   
   if (!token) {
     errorMessage.value = 'Token de verificación no válido'
