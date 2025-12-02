@@ -14,7 +14,10 @@ export const resumeApi = {
     const response = await fetch(`${API_BASE_URL}/my-resumes`, {
       headers: getAuthHeaders()
     })
-    if (!response.ok) throw new Error('Failed to fetch resumes')
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: 'Error desconocido' }))
+      throw new Error(`Error ${response.status}: ${errorData.message || 'Failed to fetch resumes'}`)
+    }
     return response.json()
   },
 
@@ -23,7 +26,10 @@ export const resumeApi = {
     const response = await fetch(`${API_BASE_URL}/${requestId}`, {
       headers: getAuthHeaders()
     })
-    if (!response.ok) throw new Error('Failed to fetch resume detail')
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: 'Error desconocido' }))
+      throw new Error(`Error ${response.status}: ${errorData.message || 'Failed to fetch resume detail'}`)
+    }
     return response.json()
   },
 

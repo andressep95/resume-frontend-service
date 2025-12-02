@@ -125,11 +125,12 @@ const loadResumes = async () => {
     resumes.value = data.resumes || data || []
   } catch (error) {
     console.error('Error loading resumes:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Error al cargar los CVs'
     toast.add({
       severity: 'error',
-      summary: 'Error',
-      detail: 'Error al cargar los CVs',
-      life: 5000,
+      summary: 'Error del Servidor',
+      detail: errorMessage.includes('cv_name') ? 'Error en la base de datos. Contacte al administrador.' : errorMessage,
+      life: 8000,
     })
   } finally {
     loading.value = false
