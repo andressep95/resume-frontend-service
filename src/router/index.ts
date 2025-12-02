@@ -3,6 +3,7 @@ import LoginView from '../views/LoginView.vue'
 import HomeView from '../views/HomeView.vue'
 import MyResumesView from '../views/MyResumesView.vue'
 import ResumeDetailView from '../views/ResumeDetailView.vue'
+import VerifyEmailView from '../views/VerifyEmailView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -29,6 +30,11 @@ const router = createRouter({
       name: 'resume-detail',
       component: ResumeDetailView,
       meta: { requiresAuth: true },
+    },
+    {
+      path: '/verify-email/:token',
+      name: 'verify-email',
+      component: VerifyEmailView,
     },
   ],
 })
