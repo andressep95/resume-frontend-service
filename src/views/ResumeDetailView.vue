@@ -1958,8 +1958,9 @@ onMounted(() => {
   position: relative;
 }
 
-/* Make project fields inline to allow clicking the wrapper */
-.cv-project .editable-field {
+/* Make project and experience fields inline to allow clicking the wrapper */
+.cv-project .editable-field,
+.cv-experience .editable-field {
   display: inline-block;
   max-width: fit-content;
 }
