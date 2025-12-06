@@ -428,13 +428,37 @@
             </div>
           </div>
           <div class="field">
-            <label for="responsibilities">Responsabilidades (una por línea)</label>
-            <Textarea
-              id="responsibilities"
-              v-model="newItemData.responsibilities"
-              rows="4"
-              class="w-full"
-            />
+            <div class="responsibilities-header">
+              <label>Responsabilidades</label>
+              <Button
+                icon="pi pi-plus"
+                label="Agregar"
+                size="small"
+                @click="addResponsibility"
+                class="add-responsibility-btn"
+              />
+            </div>
+            <div class="responsibilities-list">
+              <div
+                v-for="(resp, index) in responsibilities"
+                :key="index"
+                class="responsibility-item"
+              >
+                <InputText
+                  v-model="responsibilities[index]"
+                  placeholder="Descripción de la responsabilidad"
+                  class="responsibility-input"
+                />
+                <Button
+                  icon="pi pi-trash"
+                  severity="danger"
+                  text
+                  @click="removeResponsibility(index)"
+                  :disabled="responsibilities.length === 1"
+                  class="remove-responsibility-btn"
+                />
+              </div>
+            </div>
           </div>
         </template>
 
@@ -685,6 +709,7 @@ const addDialogType = ref('')
 const newItemData = reactive<any>({})
 const isEditMode = ref(false)
 const editingIndex = ref(-1)
+const responsibilities = ref<string[]>([])
 
 const isMobile = computed(() => {
   return window.innerWidth <= 768
@@ -813,8 +838,8 @@ const openAddDialog = (type: string) => {
         company: '',
         periodStart: '',
         periodEnd: '',
-        responsibilities: '',
       })
+      responsibilities.value = ['']
       break
     case 'certification':
       Object.assign(newItemData, { name: '', issuer: '', dateObtained: '' })
@@ -852,8 +877,10 @@ const openEditDialog = (type: string, index: number) => {
         company: exp.company || '',
         periodStart: exp.period?.start || '',
         periodEnd: exp.period?.end || '',
-        responsibilities: exp.responsibilities ? exp.responsibilities.join('\n') : '',
       })
+      responsibilities.value = exp.responsibilities && exp.responsibilities.length > 0
+        ? [...exp.responsibilities]
+        : ['']
       break
     case 'certification':
       const cert = pendingStructuredData.value.certifications[index]
@@ -880,7 +907,18 @@ const closeAddDialog = () => {
   addDialogType.value = ''
   isEditMode.value = false
   editingIndex.value = -1
+  responsibilities.value = []
   Object.keys(newItemData).forEach((key) => delete newItemData[key])
+}
+
+const addResponsibility = () => {
+  responsibilities.value.push('')
+}
+
+const removeResponsibility = (index: number) => {
+  if (responsibilities.value.length > 1) {
+    responsibilities.value.splice(index, 1)
+  }
 }
 
 const saveNewItem = () => {
@@ -954,9 +992,7 @@ const saveNewItem = () => {
         break
 
       case 'experience':
-        const responsibilities = newItemData.responsibilities
-          ? newItemData.responsibilities.split('\n').filter((r: string) => r.trim())
-          : []
+        const filteredResponsibilities = responsibilities.value.filter((r: string) => r.trim())
         pendingStructuredData.value.professionalExperience[editingIndex.value] = {
           position: newItemData.position,
           company: newItemData.company,
@@ -964,7 +1000,7 @@ const saveNewItem = () => {
             start: newItemData.periodStart || 'Fecha inicio',
             end: newItemData.periodEnd || 'Presente',
           },
-          responsibilities: responsibilities,
+          responsibilities: filteredResponsibilities,
         }
         break
 
@@ -1008,9 +1044,7 @@ const saveNewItem = () => {
       case 'experience':
         pendingStructuredData.value.professionalExperience =
           pendingStructuredData.value.professionalExperience || []
-        const responsibilities = newItemData.responsibilities
-          ? newItemData.responsibilities.split('\n').filter((r: string) => r.trim())
-          : []
+        const newResponsibilities = responsibilities.value.filter((r: string) => r.trim())
         pendingStructuredData.value.professionalExperience.push({
           position: newItemData.position,
           company: newItemData.company,
@@ -1018,7 +1052,7 @@ const saveNewItem = () => {
             start: newItemData.periodStart || 'Fecha inicio',
             end: newItemData.periodEnd || 'Presente',
           },
-          responsibilities: responsibilities,
+          responsibilities: newResponsibilities,
         })
         break
 
@@ -1901,6 +1935,42 @@ onMounted(() => {
 
 .w-full {
   width: 100%;
+}
+
+/* Responsibilities List Styles */
+.responsibilities-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.responsibilities-header label {
+  margin-bottom: 0;
+}
+
+.add-responsibility-btn {
+  font-size: 0.85rem;
+}
+
+.responsibilities-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.responsibility-item {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.responsibility-input {
+  flex: 1;
+}
+
+.remove-responsibility-btn {
+  flex-shrink: 0;
 }
 
 /* Item Editable Wrapper Styles */
