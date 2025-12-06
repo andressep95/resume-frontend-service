@@ -1958,6 +1958,12 @@ onMounted(() => {
   position: relative;
 }
 
+/* Make project fields inline to allow clicking the wrapper */
+.cv-project .editable-field {
+  display: inline-block;
+  max-width: fit-content;
+}
+
 .editable-field:hover {
   background-color: rgba(16, 185, 129, 0.1);
   transform: scale(1.02);
