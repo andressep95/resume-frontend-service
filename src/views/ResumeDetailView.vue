@@ -106,13 +106,14 @@
             <div
               v-for="(edu, index) in resume.structured_data.education"
               :key="index"
-              class="cv-education atomic-block"
+              class="cv-education atomic-block item-editable-wrapper"
+              @click="openEditDialog('education', index)"
             >
               <div class="cv-edu-header">
                 <div class="cv-edu-left">
                   <h3
                     class="editable-field"
-                    @click="
+                    @click.stop="
                       openEditModal(
                         `education_${index}_institution`,
                         edu.institution,
@@ -124,14 +125,14 @@
                   </h3>
                   <h4
                     class="editable-field"
-                    @click="openEditModal(`education_${index}_degree`, edu.degree, 'Título')"
+                    @click.stop="openEditModal(`education_${index}_degree`, edu.degree, 'Título')"
                   >
                     {{ edu.degree || 'Título no especificado' }}
                   </h4>
                 </div>
                 <div
                   class="cv-edu-right editable-field"
-                  @click="
+                  @click.stop="
                     openEditModal(
                       `education_${index}_graduationDate`,
                       edu.graduationDate,
@@ -165,10 +166,15 @@
               <span
                 v-for="(skill, index) in resume.structured_data.technicalSkills.skills"
                 :key="index"
-                class="cv-skill-item editable-field"
-                @click="openEditModal(`skill_${index}`, skill, 'Habilidad')"
+                class="cv-skill-item item-editable-wrapper"
+                @click="openEditDialog('skill', index)"
               >
-                • {{ skill }}
+                <span
+                  class="editable-field skill-text"
+                  @click.stop="openEditModal(`skill_${index}`, skill, 'Habilidad')"
+                >
+                  • {{ skill }}
+                </span>
               </span>
             </div>
           </div>
@@ -192,20 +198,21 @@
             <div
               v-for="(exp, index) in resume.structured_data.professionalExperience"
               :key="index"
-              class="cv-experience atomic-block"
+              class="cv-experience atomic-block item-editable-wrapper"
+              @click="openEditDialog('experience', index)"
             >
               <div class="cv-exp-header">
                 <div class="cv-exp-left">
                   <h3
                     class="editable-field"
-                    @click="openEditModal(`experience_${index}_position`, exp.position, 'Posición')"
+                    @click.stop="openEditModal(`experience_${index}_position`, exp.position, 'Posición')"
                   >
                     {{ exp.position || 'Posición no especificada' }}
                   </h3>
                 </div>
                 <div
                   class="cv-exp-right editable-field"
-                  @click="
+                  @click.stop="
                     openEditModal(
                       `experience_${index}_period`,
                       `${exp.period?.start} - ${exp.period?.end}`,
@@ -221,14 +228,14 @@
                   v-for="(resp, i) in exp.responsibilities"
                   :key="i"
                   class="editable-field"
-                  @click="openEditModal(`experience_${index}_resp_${i}`, resp, 'Responsabilidad')"
+                  @click.stop="openEditModal(`experience_${index}_resp_${i}`, resp, 'Responsabilidad')"
                 >
                   {{ resp }}
                 </li>
               </ul>
               <div
                 class="cv-company editable-field"
-                @click="openEditModal(`experience_${index}_company`, exp.company, 'Empresa')"
+                @click.stop="openEditModal(`experience_${index}_company`, exp.company, 'Empresa')"
               >
                 {{ exp.company || 'Empresa no especificada' }}
               </div>
@@ -254,13 +261,14 @@
             <div
               v-for="(cert, index) in resume.structured_data.certifications"
               :key="index"
-              class="cv-certification atomic-block"
+              class="cv-certification atomic-block item-editable-wrapper"
+              @click="openEditDialog('certification', index)"
             >
               <div class="cv-cert-header">
                 <div class="cv-cert-left">
                   <h3
                     class="editable-field"
-                    @click="
+                    @click.stop="
                       openEditModal(`certification_${index}_name`, cert.name, 'Certificación')
                     "
                   >
@@ -269,13 +277,13 @@
                   <span
                     v-if="cert.issuer"
                     class="cv-cert-issuer editable-field"
-                    @click="openEditModal(`certification_${index}_issuer`, cert.issuer, 'Emisor')"
+                    @click.stop="openEditModal(`certification_${index}_issuer`, cert.issuer, 'Emisor')"
                     >{{ cert.issuer }}</span
                   >
                 </div>
                 <div
                   class="cv-cert-right editable-field"
-                  @click="openEditModal(`certification_${index}_date`, cert.dateObtained, 'Fecha')"
+                  @click.stop="openEditModal(`certification_${index}_date`, cert.dateObtained, 'Fecha')"
                 >
                   {{ cert.dateObtained || 'Fecha no especificada' }}
                 </div>
@@ -302,18 +310,19 @@
             <div
               v-for="(project, index) in resume.structured_data.projects"
               :key="index"
-              class="cv-project atomic-block"
+              class="cv-project atomic-block item-editable-wrapper"
+              @click="openEditDialog('project', index)"
             >
               <h3
                 class="editable-field"
-                @click="openEditModal(`project_${index}_name`, project.name, 'Nombre del Proyecto')"
+                @click.stop="openEditModal(`project_${index}_name`, project.name, 'Nombre del Proyecto')"
               >
                 {{ project.name || 'Proyecto' }}
               </h3>
               <p
                 v-if="project.description"
                 class="cv-project-description editable-field"
-                @click="
+                @click.stop="
                   openEditModal(
                     `project_${index}_description`,
                     project.description,
@@ -326,7 +335,7 @@
               <p
                 v-if="project.technologies"
                 class="cv-project-tech editable-field"
-                @click="
+                @click.stop="
                   openEditModal(
                     `project_${index}_technologies`,
                     Array.isArray(project.technologies) ? project.technologies.join(', ') : project.technologies,
@@ -425,19 +434,29 @@
       </template>
     </Dialog>
 
-    <!-- Add New Item Dialog -->
+    <!-- Add/Edit Item Dialog -->
     <Dialog
       v-model:visible="showAddDialog"
       :header="
-        addDialogType === 'education'
-          ? 'Agregar Educación'
-          : addDialogType === 'skill'
-            ? 'Agregar Habilidad'
-            : addDialogType === 'experience'
-              ? 'Agregar Experiencia'
-              : addDialogType === 'certification'
-                ? 'Agregar Certificación'
-                : 'Agregar Proyecto'
+        isEditMode
+          ? addDialogType === 'education'
+            ? 'Editar Educación'
+            : addDialogType === 'skill'
+              ? 'Editar Habilidad'
+              : addDialogType === 'experience'
+                ? 'Editar Experiencia'
+                : addDialogType === 'certification'
+                  ? 'Editar Certificación'
+                  : 'Editar Proyecto'
+          : addDialogType === 'education'
+            ? 'Agregar Educación'
+            : addDialogType === 'skill'
+              ? 'Agregar Habilidad'
+              : addDialogType === 'experience'
+                ? 'Agregar Experiencia'
+                : addDialogType === 'certification'
+                  ? 'Agregar Certificación'
+                  : 'Agregar Proyecto'
       "
       modal
       :style="{ width: addDialogType === 'experience' || addDialogType === 'project' ? '500px' : '400px' }"
@@ -556,8 +575,21 @@
         </template>
       </div>
       <template #footer>
-        <Button label="Cancelar" severity="secondary" @click="closeAddDialog" />
-        <Button label="Agregar" @click="saveNewItem" />
+        <div class="dialog-footer">
+          <div class="footer-left">
+            <Button
+              v-if="isEditMode"
+              label="Eliminar"
+              severity="danger"
+              icon="pi pi-trash"
+              @click="deleteItem"
+            />
+          </div>
+          <div class="footer-right">
+            <Button label="Cancelar" severity="secondary" @click="closeAddDialog" />
+            <Button :label="isEditMode ? 'Actualizar' : 'Agregar'" @click="saveNewItem" />
+          </div>
+        </div>
       </template>
     </Dialog>
 
@@ -745,6 +777,8 @@ const pendingStructuredData = ref<any>(null)
 const showAddDialog = ref(false)
 const addDialogType = ref('')
 const newItemData = reactive<any>({})
+const isEditMode = ref(false)
+const editingIndex = ref(-1)
 
 const isMobile = computed(() => {
   return window.innerWidth <= 768
@@ -856,6 +890,8 @@ const closeEditModal = () => {
 }
 
 const openAddDialog = (type: string) => {
+  isEditMode.value = false
+  editingIndex.value = -1
   addDialogType.value = type
   // Reset newItemData based on type
   switch (type) {
@@ -884,9 +920,60 @@ const openAddDialog = (type: string) => {
   showAddDialog.value = true
 }
 
+const openEditDialog = (type: string, index: number) => {
+  isEditMode.value = true
+  editingIndex.value = index
+  addDialogType.value = type
+
+  // Load existing data based on type
+  switch (type) {
+    case 'education':
+      const edu = pendingStructuredData.value.education[index]
+      Object.assign(newItemData, {
+        institution: edu.institution || '',
+        degree: edu.degree || '',
+        graduationDate: edu.graduationDate || '',
+      })
+      break
+    case 'skill':
+      const skill = pendingStructuredData.value.technicalSkills.skills[index]
+      Object.assign(newItemData, { skill: skill || '' })
+      break
+    case 'experience':
+      const exp = pendingStructuredData.value.professionalExperience[index]
+      Object.assign(newItemData, {
+        position: exp.position || '',
+        company: exp.company || '',
+        periodStart: exp.period?.start || '',
+        periodEnd: exp.period?.end || '',
+        responsibilities: exp.responsibilities ? exp.responsibilities.join('\n') : '',
+      })
+      break
+    case 'certification':
+      const cert = pendingStructuredData.value.certifications[index]
+      Object.assign(newItemData, {
+        name: cert.name || '',
+        issuer: cert.issuer || '',
+        dateObtained: cert.dateObtained || '',
+      })
+      break
+    case 'project':
+      const proj = pendingStructuredData.value.projects[index]
+      Object.assign(newItemData, {
+        name: proj.name || '',
+        description: proj.description || '',
+        technologies: Array.isArray(proj.technologies) ? proj.technologies.join(', ') : '',
+      })
+      break
+  }
+  showAddDialog.value = true
+}
+
 const closeAddDialog = () => {
   showAddDialog.value = false
   addDialogType.value = ''
+  isEditMode.value = false
+  editingIndex.value = -1
   Object.keys(newItemData).forEach((key) => delete newItemData[key])
 }
 
@@ -944,59 +1031,150 @@ const saveNewItem = () => {
     return
   }
 
-  // Add new item to pending data
+  // Edit or Add item to pending data
+  if (isEditMode.value) {
+    // Edit existing item
+    switch (type) {
+      case 'education':
+        pendingStructuredData.value.education[editingIndex.value] = {
+          institution: newItemData.institution,
+          degree: newItemData.degree,
+          graduationDate: newItemData.graduationDate || 'Presente',
+        }
+        break
+
+      case 'skill':
+        pendingStructuredData.value.technicalSkills.skills[editingIndex.value] = newItemData.skill
+        break
+
+      case 'experience':
+        const responsibilities = newItemData.responsibilities
+          ? newItemData.responsibilities.split('\n').filter((r: string) => r.trim())
+          : []
+        pendingStructuredData.value.professionalExperience[editingIndex.value] = {
+          position: newItemData.position,
+          company: newItemData.company,
+          period: {
+            start: newItemData.periodStart || 'Fecha inicio',
+            end: newItemData.periodEnd || 'Presente',
+          },
+          responsibilities: responsibilities,
+        }
+        break
+
+      case 'certification':
+        pendingStructuredData.value.certifications[editingIndex.value] = {
+          name: newItemData.name,
+          issuer: newItemData.issuer || '',
+          dateObtained: newItemData.dateObtained || '',
+        }
+        break
+
+      case 'project':
+        const techArray = newItemData.technologies
+          ? newItemData.technologies.split(',').map((tech: string) => tech.trim())
+          : []
+        pendingStructuredData.value.projects[editingIndex.value] = {
+          name: newItemData.name,
+          description: newItemData.description || '',
+          technologies: techArray,
+        }
+        break
+    }
+  } else {
+    // Add new item to pending data
+    switch (type) {
+      case 'education':
+        pendingStructuredData.value.education = pendingStructuredData.value.education || []
+        pendingStructuredData.value.education.push({
+          institution: newItemData.institution,
+          degree: newItemData.degree,
+          graduationDate: newItemData.graduationDate || 'Presente',
+        })
+        break
+
+      case 'skill':
+        pendingStructuredData.value.technicalSkills =
+          pendingStructuredData.value.technicalSkills || { skills: [] }
+        pendingStructuredData.value.technicalSkills.skills.push(newItemData.skill)
+        break
+
+      case 'experience':
+        pendingStructuredData.value.professionalExperience =
+          pendingStructuredData.value.professionalExperience || []
+        const responsibilities = newItemData.responsibilities
+          ? newItemData.responsibilities.split('\n').filter((r: string) => r.trim())
+          : []
+        pendingStructuredData.value.professionalExperience.push({
+          position: newItemData.position,
+          company: newItemData.company,
+          period: {
+            start: newItemData.periodStart || 'Fecha inicio',
+            end: newItemData.periodEnd || 'Presente',
+          },
+          responsibilities: responsibilities,
+        })
+        break
+
+      case 'certification':
+        pendingStructuredData.value.certifications = pendingStructuredData.value.certifications || []
+        pendingStructuredData.value.certifications.push({
+          name: newItemData.name,
+          issuer: newItemData.issuer || '',
+          dateObtained: newItemData.dateObtained || '',
+        })
+        break
+
+      case 'project':
+        pendingStructuredData.value.projects = pendingStructuredData.value.projects || []
+        const techArray = newItemData.technologies
+          ? newItemData.technologies.split(',').map((tech: string) => tech.trim())
+          : []
+        pendingStructuredData.value.projects.push({
+          name: newItemData.name,
+          description: newItemData.description || '',
+          technologies: techArray,
+        })
+        break
+    }
+  }
+
+  // Update resume display
+  resume.value.structured_data = pendingStructuredData.value
+  hasPendingChanges.value = true
+
+  toast.add({
+    severity: 'success',
+    summary: isEditMode.value ? 'Elemento Actualizado' : 'Elemento Agregado',
+    detail: 'Los cambios se guardarán cuando presiones "Guardar Cambios"',
+    life: 3000,
+  })
+
+  closeAddDialog()
+}
+
+const deleteItem = () => {
+  const type = addDialogType.value
+  const index = editingIndex.value
+
+  if (index < 0) return
+
+  // Delete item from pending data
   switch (type) {
     case 'education':
-      pendingStructuredData.value.education = pendingStructuredData.value.education || []
-      pendingStructuredData.value.education.push({
-        institution: newItemData.institution,
-        degree: newItemData.degree,
-        graduationDate: newItemData.graduationDate || 'Presente',
-      })
+      pendingStructuredData.value.education.splice(index, 1)
       break
-
     case 'skill':
-      pendingStructuredData.value.technicalSkills =
-        pendingStructuredData.value.technicalSkills || { skills: [] }
-      pendingStructuredData.value.technicalSkills.skills.push(newItemData.skill)
+      pendingStructuredData.value.technicalSkills.skills.splice(index, 1)
       break
-
     case 'experience':
-      pendingStructuredData.value.professionalExperience =
-        pendingStructuredData.value.professionalExperience || []
-      const responsibilities = newItemData.responsibilities
-        ? newItemData.responsibilities.split('\n').filter((r: string) => r.trim())
-        : []
-      pendingStructuredData.value.professionalExperience.push({
-        position: newItemData.position,
-        company: newItemData.company,
-        period: {
-          start: newItemData.periodStart || 'Fecha inicio',
-          end: newItemData.periodEnd || 'Presente',
-        },
-        responsibilities: responsibilities,
-      })
+      pendingStructuredData.value.professionalExperience.splice(index, 1)
       break
-
     case 'certification':
-      pendingStructuredData.value.certifications = pendingStructuredData.value.certifications || []
-      pendingStructuredData.value.certifications.push({
-        name: newItemData.name,
-        issuer: newItemData.issuer || '',
-        dateObtained: newItemData.dateObtained || '',
-      })
+      pendingStructuredData.value.certifications.splice(index, 1)
       break
-
     case 'project':
-      pendingStructuredData.value.projects = pendingStructuredData.value.projects || []
-      const techArray = newItemData.technologies
-        ? newItemData.technologies.split(',').map((tech: string) => tech.trim())
-        : []
-      pendingStructuredData.value.projects.push({
-        name: newItemData.name,
-        description: newItemData.description || '',
-        technologies: techArray,
-      })
+      pendingStructuredData.value.projects.splice(index, 1)
       break
   }
 
@@ -1006,8 +1184,8 @@ const saveNewItem = () => {
 
   toast.add({
     severity: 'success',
-    summary: 'Elemento Agregado',
-    detail: 'El nuevo elemento se guardará cuando presiones "Guardar Cambios"',
+    summary: 'Elemento Eliminado',
+    detail: 'El elemento se eliminará cuando presiones "Guardar Cambios"',
     life: 3000,
   })
 
@@ -1840,6 +2018,55 @@ onMounted(() => {
   width: 100%;
 }
 
+/* Item Editable Wrapper Styles */
+.item-editable-wrapper {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: 4px;
+  position: relative;
+}
+
+.item-editable-wrapper:hover {
+  background-color: rgba(59, 130, 246, 0.05);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.item-editable-wrapper:hover::before {
+  content: '\f040';
+  font-family: 'primeicons';
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 14px;
+  color: rgba(59, 130, 246, 0.7);
+  opacity: 0.8;
+  z-index: 1;
+}
+
+.skill-text {
+  display: inline-block;
+  width: 100%;
+}
+
+/* Dialog Footer Styles */
+.dialog-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.footer-left {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.footer-right {
+  display: flex;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
 /* Version Management */
 .detail-header {
   display: flex;
@@ -2019,8 +2246,30 @@ onMounted(() => {
     break-inside: avoid;
   }
 
-  /* Hide add buttons in print */
+  /* Hide add buttons and edit indicators in print */
   .add-section-button {
+    display: none !important;
+  }
+
+  .item-editable-wrapper {
+    cursor: default !important;
+  }
+
+  .item-editable-wrapper:hover {
+    background-color: transparent !important;
+    box-shadow: none !important;
+  }
+
+  .item-editable-wrapper:hover::before {
+    display: none !important;
+  }
+
+  .editable-field:hover {
+    background-color: transparent !important;
+    transform: none !important;
+  }
+
+  .editable-field:hover::after {
     display: none !important;
   }
 }
