@@ -158,7 +158,7 @@
                     openEditModal(
                       `experience_${index}_period`,
                       `${exp.period?.start} - ${exp.period?.end}`,
-                      'Período (MM YYYY - MM YYYY o Presente)',
+                      'Período',
                     )
                   "
                 >
@@ -326,6 +326,7 @@
           :id="currentField"
           v-model="currentValue"
           class="edit-input"
+          :placeholder="currentField.includes('period') ? 'Ej: 10 2024 - 02 2025 o 10 2024 - Presente' : ''"
           @keyup.enter="saveEdit"
         />
         <Textarea v-else :id="currentField" v-model="currentValue" rows="3" class="edit-input" />
@@ -667,14 +668,15 @@ const saveEdit = async () => {
       const input = value.trim()
 
       // Expresión Regular para el formato "MM YYYY - MM YYYY" o "MM YYYY - Presente/present"
-      const periodRegex = /^(?:[A-Za-z]{3}\s\d{4})\s-\s(?:[A-Za-z]{3}\s\d{4}|presente|present)$/i
+      // Acepta mes numérico (01-12) o mes en texto (Jan, Feb, etc.)
+      const periodRegex = /^(?:(?:0?[1-9]|1[0-2])\s\d{4}|[A-Za-z]{3}\s\d{4})\s-\s(?:(?:0?[1-9]|1[0-2])\s\d{4}|[A-Za-z]{3}\s\d{4}|presente|present)$/i
 
       // 1. **VALIDACIÓN** del formato
       if (!periodRegex.test(input)) {
         toast.add({
           severity: 'error',
-          summary: 'Error de Formato',
-          detail: 'El período debe tener el formato "MM YYYY - MM YYYY" o "MM YYYY - Presente".',
+          summary: 'Formato Inválido',
+          detail: 'Use el formato: "MM YYYY - MM YYYY" o "MM YYYY - Presente" (ej: "10 2024 - 02 2025")',
           life: 6000,
         })
         return
