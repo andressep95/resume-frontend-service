@@ -12,6 +12,21 @@
       </div>
       <div class="header-right" v-if="resume">
         <Tag :value="`Versión ${currentVersionNumber || 1}`" severity="info" class="version-tag" />
+        <Tag
+          v-if="hasPendingChanges"
+          value="Cambios sin guardar"
+          severity="warning"
+          icon="pi pi-exclamation-triangle"
+          class="pending-changes-tag"
+        />
+        <Button
+          v-if="hasPendingChanges"
+          icon="pi pi-save"
+          label="Guardar Cambios"
+          severity="warning"
+          @click="saveAllChanges"
+          class="save-button pulse-animation"
+        />
         <Button
           icon="pi pi-download"
           label="Descargar PDF"
@@ -529,6 +544,8 @@ const editableData = reactive({
   phone: '',
   address: '',
 })
+const hasPendingChanges = ref(false)
+const pendingStructuredData = ref<any>(null)
 
 const isMobile = computed(() => {
   return window.innerWidth <= 768
@@ -558,6 +575,10 @@ const loadResumeDetail = async () => {
     editableData.email = resume.value.structured_data?.header?.contact?.email || ''
     editableData.phone = resume.value.structured_data?.header?.contact?.phone || ''
     editableData.address = resume.value.structured_data?.header?.contact?.address || ''
+
+    // Initialize pending data with current structured data
+    pendingStructuredData.value = JSON.parse(JSON.stringify(resume.value.structured_data))
+    hasPendingChanges.value = false
 
     console.log('📝 Datos editables poblados:', editableData)
   } catch (error) {
@@ -635,9 +656,9 @@ const closeEditModal = () => {
   currentValue.value = ''
 }
 
-const saveEdit = async () => {
-  // Clone current structured data
-  let updatedStructuredData = JSON.parse(JSON.stringify(resume.value.structured_data))
+const saveEdit = () => {
+  // Use pending structured data for edits
+  let updatedStructuredData = pendingStructuredData.value
 
   // Update based on field type
   const field = currentField.value
@@ -762,28 +783,47 @@ const saveEdit = async () => {
     }
   }
 
-  // Create new version with updated data
-  try {
-    console.log('🔄 Creando nueva versión con datos:', updatedStructuredData)
+  // Update local data and mark as pending
+  resume.value.structured_data = updatedStructuredData
+  pendingStructuredData.value = updatedStructuredData
+  hasPendingChanges.value = true
 
-    const versionData = {
-      structured_data: updatedStructuredData,
-      version_name: `Edición de ${currentFieldLabel.value}`,
-    }
+  toast.add({
+    severity: 'info',
+    summary: 'Cambio Realizado',
+    detail: 'El cambio se guardará cuando presiones "Guardar Cambios"',
+    life: 3000,
+  })
+
+  closeEditModal()
+}
+
+const saveAllChanges = async () => {
+  if (!hasPendingChanges.value) {
+    toast.add({
+      severity: 'info',
+      summary: 'Sin Cambios',
+      detail: 'No hay cambios pendientes por guardar',
+      life: 3000,
+    })
+    return
+  }
+
+  try {
+    console.log('🔄 Creando nueva versión con todos los cambios:', pendingStructuredData.value)
 
     await resumeApi.createVersion(
       route.params.id as string,
-      updatedStructuredData,
-      `Edición de ${currentFieldLabel.value}`,
+      pendingStructuredData.value,
+      'Edición manual del CV',
     )
 
-    // Update local data
-    resume.value.structured_data = updatedStructuredData
+    hasPendingChanges.value = false
 
     toast.add({
       severity: 'success',
       summary: 'Éxito',
-      detail: 'Nueva versión creada correctamente',
+      detail: 'Nueva versión creada correctamente con todos los cambios',
       life: 3000,
     })
 
@@ -798,8 +838,6 @@ const saveEdit = async () => {
       life: 5000,
     })
   }
-
-  closeEditModal()
 }
 
 const loadVersions = async () => {
@@ -837,6 +875,10 @@ const viewVersion = async (versionId: number) => {
     editableData.email = versionData.structured_data?.header?.contact?.email || ''
     editableData.phone = versionData.structured_data?.header?.contact?.phone || ''
     editableData.address = versionData.structured_data?.header?.contact?.address || ''
+
+    // Reset pending changes when viewing a different version
+    pendingStructuredData.value = JSON.parse(JSON.stringify(versionData.structured_data))
+    hasPendingChanges.value = false
 
     currentVersionNumber.value = versionData.version_number
     showVersionsDialog.value = false
@@ -1526,6 +1568,31 @@ onMounted(() => {
 .page-break-after {
   page-break-after: always;
   break-after: page;
+}
+
+/* Save Changes Button and Tag Styles */
+.save-button {
+  font-weight: 600;
+}
+
+.pending-changes-tag {
+  font-weight: 600;
+}
+
+.pulse-animation {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(255, 193, 7, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 193, 7, 0);
+  }
 }
 
 @media print {
