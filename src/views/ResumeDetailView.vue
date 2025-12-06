@@ -11,11 +11,7 @@
         />
       </div>
       <div class="header-right" v-if="resume">
-        <Tag 
-          :value="`Versión ${currentVersionNumber || 1}`" 
-          severity="info" 
-          class="version-tag"
-        />
+        <Tag :value="`Versión ${currentVersionNumber || 1}`" severity="info" class="version-tag" />
         <Button
           icon="pi pi-download"
           label="Descargar PDF"
@@ -45,18 +41,33 @@
         <div class="cv-container">
           <!-- Header -->
           <div class="cv-header">
-            <h1 class="cv-name editable-field" @click="openEditModal('name', editableData.name, 'Nombre')">
+            <h1
+              class="cv-name editable-field"
+              @click="openEditModal('name', editableData.name, 'Nombre')"
+            >
               {{ editableData.name || 'Nombre no disponible' }}
             </h1>
             <div class="cv-contact">
-              <span v-if="editableData.email" class="editable-field" @click="openEditModal('email', editableData.email, 'Email')">
+              <span
+                v-if="editableData.email"
+                class="editable-field"
+                @click="openEditModal('email', editableData.email, 'Email')"
+              >
                 {{ editableData.email }}
               </span>
-              <span v-if="editableData.phone" class="editable-field" @click="openEditModal('phone', editableData.phone, 'Teléfono')">
-                 • {{ editableData.phone }}
+              <span
+                v-if="editableData.phone"
+                class="editable-field"
+                @click="openEditModal('phone', editableData.phone, 'Teléfono')"
+              >
+                • {{ editableData.phone }}
               </span>
-              <span v-if="editableData.address" class="editable-field" @click="openEditModal('address', editableData.address, 'Dirección')">
-                 • {{ editableData.address }}
+              <span
+                v-if="editableData.address"
+                class="editable-field"
+                @click="openEditModal('address', editableData.address, 'Dirección')"
+              >
+                • {{ editableData.address }}
               </span>
             </div>
           </div>
@@ -65,13 +76,42 @@
           <div v-if="resume.structured_data?.education?.length" class="cv-section">
             <h2 class="cv-section-title">Educación</h2>
             <div class="cv-divider"></div>
-            <div v-for="(edu, index) in resume.structured_data.education" :key="index" class="cv-education atomic-block">
+            <div
+              v-for="(edu, index) in resume.structured_data.education"
+              :key="index"
+              class="cv-education atomic-block"
+            >
               <div class="cv-edu-header">
                 <div class="cv-edu-left">
-                  <h3 class="editable-field" @click="openEditModal(`education_${index}_institution`, edu.institution, 'Institución')">{{ edu.institution || 'Institución no especificada' }}</h3>
-                  <h4 class="editable-field" @click="openEditModal(`education_${index}_degree`, edu.degree, 'Título')">{{ edu.degree || 'Título no especificado' }}</h4>
+                  <h3
+                    class="editable-field"
+                    @click="
+                      openEditModal(
+                        `education_${index}_institution`,
+                        edu.institution,
+                        'Institución',
+                      )
+                    "
+                  >
+                    {{ edu.institution || 'Institución no especificada' }}
+                  </h3>
+                  <h4
+                    class="editable-field"
+                    @click="openEditModal(`education_${index}_degree`, edu.degree, 'Título')"
+                  >
+                    {{ edu.degree || 'Título no especificado' }}
+                  </h4>
                 </div>
-                <div class="cv-edu-right editable-field" @click="openEditModal(`education_${index}_graduationDate`, edu.graduationDate, 'Fecha de Graduación')">
+                <div
+                  class="cv-edu-right editable-field"
+                  @click="
+                    openEditModal(
+                      `education_${index}_graduationDate`,
+                      edu.graduationDate,
+                      'Fecha de Graduación',
+                    )
+                  "
+                >
                   {{ edu.graduationDate || 'Presente' }}
                 </div>
               </div>
@@ -83,7 +123,12 @@
             <h2 class="cv-section-title">Habilidades Técnicas</h2>
             <div class="cv-divider"></div>
             <div class="cv-skills-grid">
-              <span v-for="(skill, index) in resume.structured_data.technicalSkills.skills" :key="index" class="cv-skill-item editable-field" @click="openEditModal(`skill_${index}`, skill, 'Habilidad')">
+              <span
+                v-for="(skill, index) in resume.structured_data.technicalSkills.skills"
+                :key="index"
+                class="cv-skill-item editable-field"
+                @click="openEditModal(`skill_${index}`, skill, 'Habilidad')"
+              >
                 • {{ skill }}
               </span>
             </div>
@@ -93,19 +138,49 @@
           <div v-if="resume.structured_data?.professionalExperience?.length" class="cv-section">
             <h2 class="cv-section-title">Experiencia Profesional</h2>
             <div class="cv-divider"></div>
-            <div v-for="(exp, index) in resume.structured_data.professionalExperience" :key="index" class="cv-experience atomic-block">
+            <div
+              v-for="(exp, index) in resume.structured_data.professionalExperience"
+              :key="index"
+              class="cv-experience atomic-block"
+            >
               <div class="cv-exp-header">
                 <div class="cv-exp-left">
-                  <h3 class="editable-field" @click="openEditModal(`experience_${index}_position`, exp.position, 'Posición')">{{ exp.position || 'Posición no especificada' }}</h3>
+                  <h3
+                    class="editable-field"
+                    @click="openEditModal(`experience_${index}_position`, exp.position, 'Posición')"
+                  >
+                    {{ exp.position || 'Posición no especificada' }}
+                  </h3>
                 </div>
-                <div class="cv-exp-right editable-field" @click="openEditModal(`experience_${index}_period`, `${exp.period?.start} - ${exp.period?.end}`, 'Período')">
+                <div
+                  class="cv-exp-right editable-field"
+                  @click="
+                    openEditModal(
+                      `experience_${index}_period`,
+                      `${exp.period?.start} - ${exp.period?.end}`,
+                      'Período (MM YYYY - MM YYYY o Presente)',
+                    )
+                  "
+                >
                   {{ exp.period?.start || 'Fecha inicio' }} - {{ exp.period?.end || 'Presente' }}
                 </div>
               </div>
               <ul v-if="exp.responsibilities?.length" class="cv-responsibilities">
-                <li v-for="(resp, i) in exp.responsibilities" :key="i" class="editable-field" @click="openEditModal(`experience_${index}_resp_${i}`, resp, 'Responsabilidad')">{{ resp }}</li>
+                <li
+                  v-for="(resp, i) in exp.responsibilities"
+                  :key="i"
+                  class="editable-field"
+                  @click="openEditModal(`experience_${index}_resp_${i}`, resp, 'Responsabilidad')"
+                >
+                  {{ resp }}
+                </li>
               </ul>
-              <div class="cv-company editable-field" @click="openEditModal(`experience_${index}_company`, exp.company, 'Empresa')">{{ exp.company || 'Empresa no especificada' }}</div>
+              <div
+                class="cv-company editable-field"
+                @click="openEditModal(`experience_${index}_company`, exp.company, 'Empresa')"
+              >
+                {{ exp.company || 'Empresa no especificada' }}
+              </div>
             </div>
           </div>
 
@@ -113,13 +188,32 @@
           <div v-if="resume.structured_data?.certifications?.length" class="cv-section">
             <h2 class="cv-section-title">Certificaciones</h2>
             <div class="cv-divider"></div>
-            <div v-for="(cert, index) in resume.structured_data.certifications" :key="index" class="cv-certification atomic-block">
+            <div
+              v-for="(cert, index) in resume.structured_data.certifications"
+              :key="index"
+              class="cv-certification atomic-block"
+            >
               <div class="cv-cert-header">
                 <div class="cv-cert-left">
-                  <h3 class="editable-field" @click="openEditModal(`certification_${index}_name`, cert.name, 'Certificación')">{{ cert.name || 'Certificación' }}</h3>
-                  <span v-if="cert.issuer" class="cv-cert-issuer editable-field" @click="openEditModal(`certification_${index}_issuer`, cert.issuer, 'Emisor')">{{ cert.issuer }}</span>
+                  <h3
+                    class="editable-field"
+                    @click="
+                      openEditModal(`certification_${index}_name`, cert.name, 'Certificación')
+                    "
+                  >
+                    {{ cert.name || 'Certificación' }}
+                  </h3>
+                  <span
+                    v-if="cert.issuer"
+                    class="cv-cert-issuer editable-field"
+                    @click="openEditModal(`certification_${index}_issuer`, cert.issuer, 'Emisor')"
+                    >{{ cert.issuer }}</span
+                  >
                 </div>
-                <div class="cv-cert-right editable-field" @click="openEditModal(`certification_${index}_date`, cert.dateObtained, 'Fecha')">
+                <div
+                  class="cv-cert-right editable-field"
+                  @click="openEditModal(`certification_${index}_date`, cert.dateObtained, 'Fecha')"
+                >
                   {{ cert.dateObtained || 'Fecha no especificada' }}
                 </div>
               </div>
@@ -130,10 +224,43 @@
           <div v-if="resume.structured_data?.projects?.length" class="cv-section">
             <h2 class="cv-section-title">Proyectos</h2>
             <div class="cv-divider"></div>
-            <div v-for="(project, index) in resume.structured_data.projects" :key="index" class="cv-project atomic-block">
-              <h3 class="editable-field" @click="openEditModal(`project_${index}_name`, project.name, 'Nombre del Proyecto')">{{ project.name || 'Proyecto' }}</h3>
-              <p v-if="project.description" class="cv-project-description editable-field" @click="openEditModal(`project_${index}_description`, project.description, 'Descripción del Proyecto')">{{ project.description }}</p>
-              <p v-if="project.technologies" class="cv-project-tech editable-field" @click="openEditModal(`project_${index}_technologies`, project.technologies, 'Tecnologías')">Technologies: {{ project.technologies }}</p>
+            <div
+              v-for="(project, index) in resume.structured_data.projects"
+              :key="index"
+              class="cv-project atomic-block"
+            >
+              <h3
+                class="editable-field"
+                @click="openEditModal(`project_${index}_name`, project.name, 'Nombre del Proyecto')"
+              >
+                {{ project.name || 'Proyecto' }}
+              </h3>
+              <p
+                v-if="project.description"
+                class="cv-project-description editable-field"
+                @click="
+                  openEditModal(
+                    `project_${index}_description`,
+                    project.description,
+                    'Descripción del Proyecto',
+                  )
+                "
+              >
+                {{ project.description }}
+              </p>
+              <p
+                v-if="project.technologies"
+                class="cv-project-tech editable-field"
+                @click="
+                  openEditModal(
+                    `project_${index}_technologies`,
+                    project.technologies,
+                    'Tecnologías',
+                  )
+                "
+              >
+                Technologies: {{ project.technologies }}
+              </p>
             </div>
           </div>
 
@@ -142,9 +269,29 @@
             <h2 class="cv-section-title">Idiomas</h2>
             <div class="cv-divider"></div>
             <div class="cv-languages">
-              <div v-for="(lang, index) in resume.structured_data.languages" :key="index" class="cv-language">
-                <strong class="editable-field" @click="openEditModal(`language_${index}_name`, lang.language, 'Idioma')">{{ lang.language || 'Idioma' }}</strong>
-                <span v-if="lang.proficiency" class="editable-field" @click="openEditModal(`language_${index}_proficiency`, lang.proficiency, 'Nivel de Dominio')"> - {{ lang.proficiency }}</span>
+              <div
+                v-for="(lang, index) in resume.structured_data.languages"
+                :key="index"
+                class="cv-language"
+              >
+                <strong
+                  class="editable-field"
+                  @click="openEditModal(`language_${index}_name`, lang.language, 'Idioma')"
+                  >{{ lang.language || 'Idioma' }}</strong
+                >
+                <span
+                  v-if="lang.proficiency"
+                  class="editable-field"
+                  @click="
+                    openEditModal(
+                      `language_${index}_proficiency`,
+                      lang.proficiency,
+                      'Nivel de Dominio',
+                    )
+                  "
+                >
+                  - {{ lang.proficiency }}</span
+                >
               </div>
             </div>
           </div>
@@ -159,38 +306,29 @@
             <i class="pi pi-exclamation-triangle error-icon"></i>
             <h3>CV no encontrado</h3>
             <p>No se pudo cargar la información del CV solicitado.</p>
-            <Button
-              label="Volver a Mis CVs"
-              @click="$router.push('/my-resumes')"
-            />
+            <Button label="Volver a Mis CVs" @click="$router.push('/my-resumes')" />
           </div>
         </template>
       </Card>
     </div>
 
     <!-- Edit Modal -->
-    <Dialog 
-      v-model:visible="showEditModal" 
-      :header="`Editar ${currentFieldLabel}`" 
-      modal 
+    <Dialog
+      v-model:visible="showEditModal"
+      :header="`Editar ${currentFieldLabel}`"
+      modal
       :style="{ width: '400px' }"
     >
       <div class="edit-modal-content">
         <label :for="currentField">{{ currentFieldLabel }}</label>
-        <InputText 
+        <InputText
           v-if="!isTextarea"
           :id="currentField"
-          v-model="currentValue" 
+          v-model="currentValue"
           class="edit-input"
           @keyup.enter="saveEdit"
         />
-        <Textarea 
-          v-else
-          :id="currentField"
-          v-model="currentValue" 
-          rows="3"
-          class="edit-input"
-        />
+        <Textarea v-else :id="currentField" v-model="currentValue" rows="3" class="edit-input" />
       </div>
       <template #footer>
         <Button label="Cancelar" severity="secondary" @click="closeEditModal" />
@@ -199,25 +337,25 @@
     </Dialog>
 
     <!-- Versions Dialog -->
-    <Dialog 
-      v-model:visible="showVersionsDialog" 
-      header="Historial de Versiones" 
-      modal 
+    <Dialog
+      v-model:visible="showVersionsDialog"
+      header="Historial de Versiones"
+      modal
       dismissableMask
       :style="{ width: isMobile ? '95vw' : '700px' }"
       class="versions-dialog"
     >
       <!-- Desktop Table -->
-      <DataTable 
+      <DataTable
         v-if="!isMobile"
-        :value="versions" 
+        :value="versions"
         :loading="loadingVersions"
         class="versions-table"
       >
         <Column field="version_number" header="Versión" sortable>
           <template #body="{ data }">
-            <Tag 
-              :value="`v${data.version_number}`" 
+            <Tag
+              :value="`v${data.version_number}`"
               :severity="data.is_active ? 'success' : 'secondary'"
             />
           </template>
@@ -225,8 +363,8 @@
         <Column field="version_name" header="Nombre" sortable />
         <Column field="created_by" header="Creado por" sortable>
           <template #body="{ data }">
-            <Tag 
-              :value="data.created_by === 'system' ? 'Sistema' : 'Usuario'" 
+            <Tag
+              :value="data.created_by === 'system' ? 'Sistema' : 'Usuario'"
               :severity="data.created_by === 'system' ? 'info' : 'warning'"
             />
           </template>
@@ -281,8 +419,8 @@
             <template #content>
               <div class="version-card-header">
                 <div class="version-info">
-                  <Tag 
-                    :value="`v${version.version_number}`" 
+                  <Tag
+                    :value="`v${version.version_number}`"
                     :severity="version.is_active ? 'success' : 'secondary'"
                     class="version-number"
                   />
@@ -316,8 +454,8 @@
               <div class="version-meta">
                 <div class="meta-item">
                   <span class="meta-label">Creado por:</span>
-                  <Tag 
-                    :value="version.created_by === 'system' ? 'Sistema' : 'Usuario'" 
+                  <Tag
+                    :value="version.created_by === 'system' ? 'Sistema' : 'Usuario'"
                     :severity="version.created_by === 'system' ? 'info' : 'warning'"
                     size="small"
                   />
@@ -375,7 +513,7 @@ const editableData = reactive({
   name: '',
   email: '',
   phone: '',
-  address: ''
+  address: '',
 })
 
 const isMobile = computed(() => {
@@ -388,25 +526,25 @@ const loadResumeDetail = async () => {
     router.push('/login')
     return
   }
-  
+
   const requestId = route.params.id
   if (!requestId) {
     router.push('/my-resumes')
     return
   }
-  
+
   loading.value = true
   try {
     console.log('🔄 Cargando detalle del CV con ID:', requestId)
     resume.value = await resumeApi.getResumeDetail(requestId as string)
     console.log('✅ Respuesta del detalle del CV:', resume.value)
-    
+
     // Populate editable data
     editableData.name = resume.value.structured_data?.header?.name || ''
     editableData.email = resume.value.structured_data?.header?.contact?.email || ''
     editableData.phone = resume.value.structured_data?.header?.contact?.phone || ''
     editableData.address = resume.value.structured_data?.header?.contact?.address || ''
-    
+
     console.log('📝 Datos editables poblados:', editableData)
   } catch (error) {
     console.error('❌ Error loading resume detail:', error)
@@ -414,7 +552,7 @@ const loadResumeDetail = async () => {
       severity: 'error',
       summary: 'Error',
       detail: error instanceof Error ? error.message : 'Error al cargar el detalle del CV',
-      life: 8000
+      life: 8000,
     })
   } finally {
     loading.value = false
@@ -423,30 +561,30 @@ const loadResumeDetail = async () => {
 
 const getStatusLabel = (status: string) => {
   const labels: Record<string, string> = {
-    'pending': 'Pendiente',
-    'processing': 'Procesando',
-    'completed': 'Completado',
-    'failed': 'Fallido'
+    pending: 'Pendiente',
+    processing: 'Procesando',
+    completed: 'Completado',
+    failed: 'Fallido',
   }
   return labels[status] || status
 }
 
 const getStatusSeverity = (status: string) => {
   const severities: Record<string, string> = {
-    'pending': 'warning',
-    'processing': 'info',
-    'completed': 'success',
-    'failed': 'danger'
+    pending: 'warning',
+    processing: 'info',
+    completed: 'success',
+    failed: 'danger',
   }
   return severities[status] || 'secondary'
 }
 
 const getLanguageLabel = (language: string) => {
   const labels: Record<string, string> = {
-    'es': 'Español',
-    'en': 'English',
-    'pt': 'Português',
-    'fr': 'Français'
+    es: 'Español',
+    en: 'English',
+    pt: 'Português',
+    fr: 'Français',
   }
   return labels[language] || language
 }
@@ -458,7 +596,7 @@ const formatDate = (dateString: string) => {
     month: 'long',
     day: 'numeric',
     hour: '2-digit',
-    minute: '2-digit'
+    minute: '2-digit',
   })
 }
 
@@ -466,7 +604,7 @@ const formatFileSize = (bytes: number) => {
   if (!bytes) return '-'
   const sizes = ['Bytes', 'KB', 'MB', 'GB']
   const i = Math.floor(Math.log(bytes) / Math.log(1024))
-  return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i]
+  return Math.round((bytes / Math.pow(1024, i)) * 100) / 100 + ' ' + sizes[i]
 }
 
 const openEditModal = (field: string, value: string, label: string) => {
@@ -486,11 +624,11 @@ const closeEditModal = () => {
 const saveEdit = async () => {
   // Clone current structured data
   let updatedStructuredData = JSON.parse(JSON.stringify(resume.value.structured_data))
-  
+
   // Update based on field type
   const field = currentField.value
   const value = currentValue.value
-  
+
   if (field === 'name') {
     editableData.name = value
     updatedStructuredData.header = updatedStructuredData.header || {}
@@ -519,11 +657,40 @@ const saveEdit = async () => {
     const parts = field.split('_')
     const expIndex = parseInt(parts[1] || '0')
     const fieldType = parts[2]
-    
+
     if (!fieldType) return
-    
-    updatedStructuredData.professionalExperience = updatedStructuredData.professionalExperience || []
-    if (fieldType === 'position') {
+
+    updatedStructuredData.professionalExperience =
+      updatedStructuredData.professionalExperience || []
+
+    if (fieldType === 'period') {
+      const input = value.trim()
+
+      // Expresión Regular para el formato "MM YYYY - MM YYYY" o "MM YYYY - Presente/present"
+      const periodRegex = /^(?:[A-Za-z]{3}\s\d{4})\s-\s(?:[A-Za-z]{3}\s\d{4}|presente|present)$/i
+
+      // 1. **VALIDACIÓN** del formato
+      if (!periodRegex.test(input)) {
+        toast.add({
+          severity: 'error',
+          summary: 'Error de Formato',
+          detail: 'El período debe tener el formato "MM YYYY - MM YYYY" o "MM YYYY - Presente".',
+          life: 6000,
+        })
+        return
+      }
+
+      const [start, end] = input.split(' - ').map((s) => s.trim())
+
+      // Aseguramos que 'end' sea 'Presente' si el usuario ingresó 'present' o 'presente' (insensible a mayúsculas)
+      const normalizedEnd =
+        end?.toLowerCase() === 'presente' || end?.toLowerCase() === 'present' ? 'Presente' : end
+
+      updatedStructuredData.professionalExperience[expIndex].period = {
+        start: start,
+        end: normalizedEnd,
+      }
+    } else if (fieldType === 'position') {
       updatedStructuredData.professionalExperience[expIndex].position = value
     } else if (fieldType === 'company') {
       updatedStructuredData.professionalExperience[expIndex].company = value
@@ -535,9 +702,9 @@ const saveEdit = async () => {
     const parts = field.split('_')
     const eduIndex = parseInt(parts[1] || '0')
     const fieldType = parts[2]
-    
+
     if (!fieldType) return
-    
+
     updatedStructuredData.education = updatedStructuredData.education || []
     if (fieldType === 'institution') {
       updatedStructuredData.education[eduIndex].institution = value
@@ -550,9 +717,9 @@ const saveEdit = async () => {
     const parts = field.split('_')
     const certIndex = parseInt(parts[1] || '0')
     const fieldType = parts[2]
-    
+
     if (!fieldType) return
-    
+
     updatedStructuredData.certifications = updatedStructuredData.certifications || []
     if (fieldType === 'name') {
       updatedStructuredData.certifications[certIndex].name = value
@@ -560,28 +727,32 @@ const saveEdit = async () => {
       updatedStructuredData.certifications[certIndex].issuer = value
     }
   }
-  
+
   // Create new version with updated data
   try {
     console.log('🔄 Creando nueva versión con datos:', updatedStructuredData)
-    
+
     const versionData = {
       structured_data: updatedStructuredData,
-      version_name: `Edición de ${currentFieldLabel.value}`
+      version_name: `Edición de ${currentFieldLabel.value}`,
     }
-    
-    await resumeApi.createVersion(route.params.id as string, updatedStructuredData, `Edición de ${currentFieldLabel.value}`)
-    
+
+    await resumeApi.createVersion(
+      route.params.id as string,
+      updatedStructuredData,
+      `Edición de ${currentFieldLabel.value}`,
+    )
+
     // Update local data
     resume.value.structured_data = updatedStructuredData
-    
+
     toast.add({
       severity: 'success',
       summary: 'Éxito',
       detail: 'Nueva versión creada correctamente',
-      life: 3000
+      life: 3000,
     })
-    
+
     // Reload resume to get updated version info
     await loadResumeDetail()
   } catch (error) {
@@ -590,16 +761,16 @@ const saveEdit = async () => {
       severity: 'error',
       summary: 'Error',
       detail: error instanceof Error ? error.message : 'Error al guardar los cambios',
-      life: 5000
+      life: 5000,
     })
   }
-  
+
   closeEditModal()
 }
 
 const loadVersions = async () => {
   if (!route.params.id) return
-  
+
   loadingVersions.value = true
   try {
     const response = await resumeApi.getResumeVersions(route.params.id as string)
@@ -611,7 +782,7 @@ const loadVersions = async () => {
       severity: 'error',
       summary: 'Error',
       detail: 'Error al cargar las versiones',
-      life: 5000
+      life: 5000,
     })
   } finally {
     loadingVersions.value = false
@@ -624,23 +795,23 @@ const viewVersion = async (versionId: number) => {
     // Update the current view with version data
     resume.value = {
       ...resume.value,
-      structured_data: versionData.structured_data
+      structured_data: versionData.structured_data,
     }
-    
+
     // Update editable data
     editableData.name = versionData.structured_data?.header?.name || ''
     editableData.email = versionData.structured_data?.header?.contact?.email || ''
     editableData.phone = versionData.structured_data?.header?.contact?.phone || ''
     editableData.address = versionData.structured_data?.header?.contact?.address || ''
-    
+
     currentVersionNumber.value = versionData.version_number
     showVersionsDialog.value = false
-    
+
     toast.add({
       severity: 'info',
       summary: 'Versión cargada',
       detail: `Mostrando versión ${versionData.version_number}`,
-      life: 3000
+      life: 3000,
     })
   } catch (error) {
     console.error('Error viewing version:', error)
@@ -648,117 +819,111 @@ const viewVersion = async (versionId: number) => {
       severity: 'error',
       summary: 'Error',
       detail: 'Error al cargar la versión',
-      life: 5000
+      life: 5000,
     })
   }
 }
 
 const activateVersion = async (versionId: number) => {
   if (!route.params.id) return
-  
+
   try {
     await resumeApi.activateVersion(route.params.id as string, versionId)
-    
+
     toast.add({
       severity: 'success',
       summary: 'Éxito',
       detail: 'Versión activada correctamente',
-      life: 3000
+      life: 3000,
     })
-    
+
     // Reload versions and resume
-    await Promise.all([
-      loadVersions(),
-      loadResumeDetail()
-    ])
+    await Promise.all([loadVersions(), loadResumeDetail()])
   } catch (error) {
     console.error('Error activating version:', error)
     toast.add({
       severity: 'error',
       summary: 'Error',
       detail: 'Error al activar la versión',
-      life: 5000
+      life: 5000,
     })
   }
 }
 
 const deleteVersion = async (versionId: number) => {
   if (!confirm('¿Estás seguro de que quieres eliminar esta versión?')) return
-  
+
   try {
     await resumeApi.deleteVersion(versionId)
-    
+
     toast.add({
       severity: 'success',
       summary: 'Éxito',
       detail: 'Versión eliminada correctamente',
-      life: 3000
+      life: 3000,
     })
-    
+
     // Reload versions and resume
-    await Promise.all([
-      loadVersions(),
-      loadResumeDetail()
-    ])
+    await Promise.all([loadVersions(), loadResumeDetail()])
   } catch (error) {
     console.error('Error deleting version:', error)
     toast.add({
       severity: 'error',
       summary: 'Error',
       detail: 'Error al eliminar la versión',
-      life: 5000
+      life: 5000,
     })
   }
 }
 
 const downloadPDF = async () => {
   if (!resume.value) return
-  
+
   downloadingPDF.value = true
-  
+
   try {
     // Import html2pdf dynamically
     const html2pdf = (await import('html2pdf.js')).default
-    
+
     // Get the CV container element
     const element = document.querySelector('.cv-container') as HTMLElement
     if (!element) {
       throw new Error('CV container not found')
     }
-    
+
     // Generate filename
     const name = editableData.name || 'CV'
     const filename = `${name.replace(/\s+/g, '_')}_CV.pdf`
-    
+
     // PDF options with page break control
     const options = {
       margin: [10, 10, 10, 10] as [number, number, number, number],
       filename,
       image: { type: 'jpeg' as const, quality: 0.98 },
-      html2canvas: { 
+      html2canvas: {
         scale: 2,
         useCORS: true,
-        letterRendering: true
+        letterRendering: true,
       },
-      jsPDF: { 
-        unit: 'mm', 
-        format: 'a4', 
-        orientation: 'portrait' as const
+      jsPDF: {
+        unit: 'mm',
+        format: 'a4',
+        orientation: 'portrait' as const,
       },
-      pagebreak: { 
+      pagebreak: {
         mode: ['css', 'legacy'],
-        avoid: '.atomic-block'
-      }
+        avoid: '.atomic-block',
+      },
     }
-    
+
     // Generate and download PDF
     await html2pdf().set(options).from(element).save()
-    
+
     toast.add({
       severity: 'success',
       summary: 'Éxito',
       detail: 'PDF descargado correctamente',
-      life: 3000
+      life: 3000,
     })
   } catch (error) {
     console.error('Error generating PDF:', error)
@@ -766,7 +931,7 @@ const downloadPDF = async () => {
       severity: 'error',
       summary: 'Error',
       detail: 'Error al generar el PDF',
-      life: 5000
+      life: 5000,
     })
   } finally {
     downloadingPDF.value = false
@@ -1334,15 +1499,15 @@ onMounted(() => {
     padding: 1rem;
     font-size: 10pt;
   }
-  
+
   .cv-name {
     font-size: 16pt;
   }
-  
+
   .cv-section-title {
     font-size: 11pt;
   }
-  
+
   .atomic-block {
     page-break-inside: avoid;
     break-inside: avoid;
@@ -1354,45 +1519,45 @@ onMounted(() => {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .metadata-grid,
   .info-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .cv-container {
     padding: 1rem;
   }
-  
+
   .cv-name {
     font-size: 2rem;
   }
-  
+
   .cv-contact {
     flex-direction: column;
     gap: 0.5rem;
   }
-  
+
   .cv-exp-header,
   .cv-edu-header {
     flex-direction: column;
     align-items: flex-start;
   }
-  
+
   .cv-exp-period,
   .cv-edu-period {
     margin-top: 0.3rem;
   }
-  
+
   .detail-header {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .header-right {
     justify-content: space-between;
   }
-  
+
   .versions-button {
     font-size: 0.875rem;
   }
