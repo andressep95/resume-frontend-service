@@ -744,7 +744,15 @@ const loadResumeDetail = async () => {
     pendingStructuredData.value = JSON.parse(JSON.stringify(resume.value.structured_data))
     hasPendingChanges.value = false
 
+    // Update current version number from active version
+    if (resume.value.active_version) {
+      currentVersionNumber.value = resume.value.active_version.version_number || 1
+    } else {
+      currentVersionNumber.value = 1
+    }
+
     console.log('📝 Datos editables poblados:', editableData)
+    console.log('📌 Versión actual:', currentVersionNumber.value)
   } catch (error) {
     console.error('❌ Error loading resume detail:', error)
     toast.add({
