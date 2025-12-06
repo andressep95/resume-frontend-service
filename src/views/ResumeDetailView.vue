@@ -254,12 +254,12 @@
                 @click="
                   openEditModal(
                     `project_${index}_technologies`,
-                    project.technologies,
+                    Array.isArray(project.technologies) ? project.technologies.join(', ') : project.technologies,
                     'Tecnologías',
                   )
                 "
               >
-                Technologies: {{ project.technologies }}
+                Technologies: {{ Array.isArray(project.technologies) ? project.technologies.join(', ') : project.technologies }}
               </p>
             </div>
           </div>
@@ -326,10 +326,23 @@
           :id="currentField"
           v-model="currentValue"
           class="edit-input"
-          :placeholder="currentField.includes('period') ? 'Ej: 10 2024 - 02 2025 o 10 2024 - Presente' : ''"
+          :placeholder="
+            currentField.includes('period')
+              ? 'Ej: 10 2024 - 02 2025 o 10 2024 - Presente'
+              : currentField.includes('technologies')
+                ? 'Ej: Java, Spring Boot, Docker'
+                : ''
+          "
           @keyup.enter="saveEdit"
         />
-        <Textarea v-else :id="currentField" v-model="currentValue" rows="3" class="edit-input" />
+        <Textarea
+          v-else
+          :id="currentField"
+          v-model="currentValue"
+          rows="3"
+          class="edit-input"
+          :placeholder="currentField.includes('description') ? 'Descripción del proyecto...' : ''"
+        />
       </div>
       <template #footer>
         <Button label="Cancelar" severity="secondary" @click="closeEditModal" />
@@ -727,6 +740,25 @@ const saveEdit = async () => {
       updatedStructuredData.certifications[certIndex].name = value
     } else if (fieldType === 'issuer') {
       updatedStructuredData.certifications[certIndex].issuer = value
+    } else if (fieldType === 'date') {
+      updatedStructuredData.certifications[certIndex].dateObtained = value
+    }
+  } else if (field.startsWith('project_')) {
+    const parts = field.split('_')
+    const projectIndex = parseInt(parts[1] || '0')
+    const fieldType = parts[2]
+
+    if (!fieldType) return
+
+    updatedStructuredData.projects = updatedStructuredData.projects || []
+    if (fieldType === 'name') {
+      updatedStructuredData.projects[projectIndex].name = value
+    } else if (fieldType === 'description') {
+      updatedStructuredData.projects[projectIndex].description = value
+    } else if (fieldType === 'technologies') {
+      // Convertir string separado por comas a array
+      const techArray = value.split(',').map((tech) => tech.trim()).filter((tech) => tech.length > 0)
+      updatedStructuredData.projects[projectIndex].technologies = techArray
     }
   }
 
