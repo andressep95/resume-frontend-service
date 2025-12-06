@@ -89,7 +89,19 @@
 
           <!-- Education -->
           <div v-if="resume.structured_data?.education?.length" class="cv-section">
-            <h2 class="cv-section-title">Educación</h2>
+            <div class="cv-section-header">
+              <h2 class="cv-section-title">Educación</h2>
+              <Button
+                icon="pi pi-plus"
+                severity="secondary"
+                text
+                rounded
+                size="small"
+                @click="openAddDialog('education')"
+                v-tooltip="'Agregar educación'"
+                class="add-section-button"
+              />
+            </div>
             <div class="cv-divider"></div>
             <div
               v-for="(edu, index) in resume.structured_data.education"
@@ -135,7 +147,19 @@
 
           <!-- Technical Skills -->
           <div v-if="resume.structured_data?.technicalSkills?.skills?.length" class="cv-section">
-            <h2 class="cv-section-title">Habilidades Técnicas</h2>
+            <div class="cv-section-header">
+              <h2 class="cv-section-title">Habilidades Técnicas</h2>
+              <Button
+                icon="pi pi-plus"
+                severity="secondary"
+                text
+                rounded
+                size="small"
+                @click="openAddDialog('skill')"
+                v-tooltip="'Agregar habilidad'"
+                class="add-section-button"
+              />
+            </div>
             <div class="cv-divider"></div>
             <div class="cv-skills-grid">
               <span
@@ -151,7 +175,19 @@
 
           <!-- Professional Experience -->
           <div v-if="resume.structured_data?.professionalExperience?.length" class="cv-section">
-            <h2 class="cv-section-title">Experiencia Profesional</h2>
+            <div class="cv-section-header">
+              <h2 class="cv-section-title">Experiencia Profesional</h2>
+              <Button
+                icon="pi pi-plus"
+                severity="secondary"
+                text
+                rounded
+                size="small"
+                @click="openAddDialog('experience')"
+                v-tooltip="'Agregar experiencia'"
+                class="add-section-button"
+              />
+            </div>
             <div class="cv-divider"></div>
             <div
               v-for="(exp, index) in resume.structured_data.professionalExperience"
@@ -201,7 +237,19 @@
 
           <!-- Certifications -->
           <div v-if="resume.structured_data?.certifications?.length" class="cv-section">
-            <h2 class="cv-section-title">Certificaciones</h2>
+            <div class="cv-section-header">
+              <h2 class="cv-section-title">Certificaciones</h2>
+              <Button
+                icon="pi pi-plus"
+                severity="secondary"
+                text
+                rounded
+                size="small"
+                @click="openAddDialog('certification')"
+                v-tooltip="'Agregar certificación'"
+                class="add-section-button"
+              />
+            </div>
             <div class="cv-divider"></div>
             <div
               v-for="(cert, index) in resume.structured_data.certifications"
@@ -237,7 +285,19 @@
 
           <!-- Projects -->
           <div v-if="resume.structured_data?.projects?.length" class="cv-section">
-            <h2 class="cv-section-title">Proyectos</h2>
+            <div class="cv-section-header">
+              <h2 class="cv-section-title">Proyectos</h2>
+              <Button
+                icon="pi pi-plus"
+                severity="secondary"
+                text
+                rounded
+                size="small"
+                @click="openAddDialog('project')"
+                v-tooltip="'Agregar proyecto'"
+                class="add-section-button"
+              />
+            </div>
             <div class="cv-divider"></div>
             <div
               v-for="(project, index) in resume.structured_data.projects"
@@ -362,6 +422,142 @@
       <template #footer>
         <Button label="Cancelar" severity="secondary" @click="closeEditModal" />
         <Button label="Guardar" @click="saveEdit" />
+      </template>
+    </Dialog>
+
+    <!-- Add New Item Dialog -->
+    <Dialog
+      v-model:visible="showAddDialog"
+      :header="
+        addDialogType === 'education'
+          ? 'Agregar Educación'
+          : addDialogType === 'skill'
+            ? 'Agregar Habilidad'
+            : addDialogType === 'experience'
+              ? 'Agregar Experiencia'
+              : addDialogType === 'certification'
+                ? 'Agregar Certificación'
+                : 'Agregar Proyecto'
+      "
+      modal
+      :style="{ width: addDialogType === 'experience' || addDialogType === 'project' ? '500px' : '400px' }"
+    >
+      <div class="add-modal-content">
+        <!-- Education Fields -->
+        <template v-if="addDialogType === 'education'">
+          <div class="field">
+            <label for="institution">Institución *</label>
+            <InputText id="institution" v-model="newItemData.institution" class="w-full" />
+          </div>
+          <div class="field">
+            <label for="degree">Título *</label>
+            <InputText id="degree" v-model="newItemData.degree" class="w-full" />
+          </div>
+          <div class="field">
+            <label for="graduationDate">Fecha de Graduación</label>
+            <InputText
+              id="graduationDate"
+              v-model="newItemData.graduationDate"
+              placeholder="MM YYYY o Presente"
+              class="w-full"
+            />
+          </div>
+        </template>
+
+        <!-- Skill Field -->
+        <template v-if="addDialogType === 'skill'">
+          <div class="field">
+            <label for="skill">Habilidad *</label>
+            <InputText id="skill" v-model="newItemData.skill" class="w-full" />
+          </div>
+        </template>
+
+        <!-- Experience Fields -->
+        <template v-if="addDialogType === 'experience'">
+          <div class="field">
+            <label for="position">Posición *</label>
+            <InputText id="position" v-model="newItemData.position" class="w-full" />
+          </div>
+          <div class="field">
+            <label for="company">Empresa *</label>
+            <InputText id="company" v-model="newItemData.company" class="w-full" />
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="periodStart">Inicio</label>
+              <InputText
+                id="periodStart"
+                v-model="newItemData.periodStart"
+                placeholder="MM YYYY"
+                class="w-full"
+              />
+            </div>
+            <div class="field">
+              <label for="periodEnd">Fin</label>
+              <InputText
+                id="periodEnd"
+                v-model="newItemData.periodEnd"
+                placeholder="MM YYYY o Presente"
+                class="w-full"
+              />
+            </div>
+          </div>
+          <div class="field">
+            <label for="responsibilities">Responsabilidades (una por línea)</label>
+            <Textarea
+              id="responsibilities"
+              v-model="newItemData.responsibilities"
+              rows="4"
+              class="w-full"
+            />
+          </div>
+        </template>
+
+        <!-- Certification Fields -->
+        <template v-if="addDialogType === 'certification'">
+          <div class="field">
+            <label for="certName">Nombre *</label>
+            <InputText id="certName" v-model="newItemData.name" class="w-full" />
+          </div>
+          <div class="field">
+            <label for="issuer">Emisor</label>
+            <InputText id="issuer" v-model="newItemData.issuer" class="w-full" />
+          </div>
+          <div class="field">
+            <label for="dateObtained">Fecha de Obtención</label>
+            <InputText
+              id="dateObtained"
+              v-model="newItemData.dateObtained"
+              placeholder="MM YYYY"
+              class="w-full"
+            />
+          </div>
+        </template>
+
+        <!-- Project Fields -->
+        <template v-if="addDialogType === 'project'">
+          <div class="field">
+            <label for="projectName">Nombre *</label>
+            <InputText id="projectName" v-model="newItemData.name" class="w-full" />
+          </div>
+          <div class="field">
+            <label for="description">Descripción</label>
+            <Textarea id="description" v-model="newItemData.description" rows="3" class="w-full" />
+          </div>
+          <div class="field">
+            <label for="technologies">Tecnologías (separadas por comas)</label>
+            <InputText
+              id="technologies"
+              v-model="newItemData.technologies"
+              placeholder="Java, Spring Boot, Docker"
+              class="w-full"
+            />
+          </div>
+        </template>
+      </div>
+      <template #footer>
+        <Button label="Cancelar" severity="secondary" @click="closeAddDialog" />
+        <Button label="Agregar" @click="saveNewItem" />
       </template>
     </Dialog>
 
@@ -546,6 +742,9 @@ const editableData = reactive({
 })
 const hasPendingChanges = ref(false)
 const pendingStructuredData = ref<any>(null)
+const showAddDialog = ref(false)
+const addDialogType = ref('')
+const newItemData = reactive<any>({})
 
 const isMobile = computed(() => {
   return window.innerWidth <= 768
@@ -654,6 +853,165 @@ const closeEditModal = () => {
   showEditModal.value = false
   currentField.value = ''
   currentValue.value = ''
+}
+
+const openAddDialog = (type: string) => {
+  addDialogType.value = type
+  // Reset newItemData based on type
+  switch (type) {
+    case 'education':
+      Object.assign(newItemData, { institution: '', degree: '', graduationDate: '' })
+      break
+    case 'skill':
+      Object.assign(newItemData, { skill: '' })
+      break
+    case 'experience':
+      Object.assign(newItemData, {
+        position: '',
+        company: '',
+        periodStart: '',
+        periodEnd: '',
+        responsibilities: '',
+      })
+      break
+    case 'certification':
+      Object.assign(newItemData, { name: '', issuer: '', dateObtained: '' })
+      break
+    case 'project':
+      Object.assign(newItemData, { name: '', description: '', technologies: '' })
+      break
+  }
+  showAddDialog.value = true
+}
+
+const closeAddDialog = () => {
+  showAddDialog.value = false
+  addDialogType.value = ''
+  Object.keys(newItemData).forEach((key) => delete newItemData[key])
+}
+
+const saveNewItem = () => {
+  const type = addDialogType.value
+
+  // Validate required fields
+  if (type === 'education' && (!newItemData.institution || !newItemData.degree)) {
+    toast.add({
+      severity: 'error',
+      summary: 'Campos Requeridos',
+      detail: 'Institución y Título son campos obligatorios',
+      life: 3000,
+    })
+    return
+  }
+
+  if (type === 'skill' && !newItemData.skill) {
+    toast.add({
+      severity: 'error',
+      summary: 'Campo Requerido',
+      detail: 'La habilidad es un campo obligatorio',
+      life: 3000,
+    })
+    return
+  }
+
+  if (type === 'experience' && (!newItemData.position || !newItemData.company)) {
+    toast.add({
+      severity: 'error',
+      summary: 'Campos Requeridos',
+      detail: 'Posición y Empresa son campos obligatorios',
+      life: 3000,
+    })
+    return
+  }
+
+  if (type === 'certification' && !newItemData.name) {
+    toast.add({
+      severity: 'error',
+      summary: 'Campo Requerido',
+      detail: 'El nombre de la certificación es obligatorio',
+      life: 3000,
+    })
+    return
+  }
+
+  if (type === 'project' && !newItemData.name) {
+    toast.add({
+      severity: 'error',
+      summary: 'Campo Requerido',
+      detail: 'El nombre del proyecto es obligatorio',
+      life: 3000,
+    })
+    return
+  }
+
+  // Add new item to pending data
+  switch (type) {
+    case 'education':
+      pendingStructuredData.value.education = pendingStructuredData.value.education || []
+      pendingStructuredData.value.education.push({
+        institution: newItemData.institution,
+        degree: newItemData.degree,
+        graduationDate: newItemData.graduationDate || 'Presente',
+      })
+      break
+
+    case 'skill':
+      pendingStructuredData.value.technicalSkills =
+        pendingStructuredData.value.technicalSkills || { skills: [] }
+      pendingStructuredData.value.technicalSkills.skills.push(newItemData.skill)
+      break
+
+    case 'experience':
+      pendingStructuredData.value.professionalExperience =
+        pendingStructuredData.value.professionalExperience || []
+      const responsibilities = newItemData.responsibilities
+        ? newItemData.responsibilities.split('\n').filter((r: string) => r.trim())
+        : []
+      pendingStructuredData.value.professionalExperience.push({
+        position: newItemData.position,
+        company: newItemData.company,
+        period: {
+          start: newItemData.periodStart || 'Fecha inicio',
+          end: newItemData.periodEnd || 'Presente',
+        },
+        responsibilities: responsibilities,
+      })
+      break
+
+    case 'certification':
+      pendingStructuredData.value.certifications = pendingStructuredData.value.certifications || []
+      pendingStructuredData.value.certifications.push({
+        name: newItemData.name,
+        issuer: newItemData.issuer || '',
+        dateObtained: newItemData.dateObtained || '',
+      })
+      break
+
+    case 'project':
+      pendingStructuredData.value.projects = pendingStructuredData.value.projects || []
+      const techArray = newItemData.technologies
+        ? newItemData.technologies.split(',').map((tech: string) => tech.trim())
+        : []
+      pendingStructuredData.value.projects.push({
+        name: newItemData.name,
+        description: newItemData.description || '',
+        technologies: techArray,
+      })
+      break
+  }
+
+  // Update resume display
+  resume.value.structured_data = pendingStructuredData.value
+  hasPendingChanges.value = true
+
+  toast.add({
+    severity: 'success',
+    summary: 'Elemento Agregado',
+    detail: 'El nuevo elemento se guardará cuando presiones "Guardar Cambios"',
+    life: 3000,
+  })
+
+  closeAddDialog()
 }
 
 const saveEdit = () => {
@@ -1228,11 +1586,28 @@ onMounted(() => {
   margin-bottom: 1.5rem;
 }
 
+.cv-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.2rem;
+}
+
 .cv-section-title {
   font-size: 12pt;
   font-weight: bold;
   color: #000;
-  margin: 0 0 0.2rem 0;
+  margin: 0;
+}
+
+.add-section-button {
+  opacity: 0.3;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.add-section-button:hover {
+  opacity: 1;
+  transform: scale(1.1);
 }
 
 .cv-divider {
@@ -1435,6 +1810,36 @@ onMounted(() => {
   width: 100%;
 }
 
+/* Add Modal Styles */
+.add-modal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0.5rem 0;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.field label {
+  font-weight: 600;
+  color: var(--text-color);
+  font-size: 0.9rem;
+}
+
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.w-full {
+  width: 100%;
+}
+
 /* Version Management */
 .detail-header {
   display: flex;
@@ -1612,6 +2017,11 @@ onMounted(() => {
   .atomic-block {
     page-break-inside: avoid;
     break-inside: avoid;
+  }
+
+  /* Hide add buttons in print */
+  .add-section-button {
+    display: none !important;
   }
 }
 
