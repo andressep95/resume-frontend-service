@@ -111,35 +111,10 @@
             >
               <div class="cv-edu-header">
                 <div class="cv-edu-left">
-                  <h3
-                    class="editable-field"
-                    @click.stop="
-                      openEditModal(
-                        `education_${index}_institution`,
-                        edu.institution,
-                        'Institución',
-                      )
-                    "
-                  >
-                    {{ edu.institution || 'Institución no especificada' }}
-                  </h3>
-                  <h4
-                    class="editable-field"
-                    @click.stop="openEditModal(`education_${index}_degree`, edu.degree, 'Título')"
-                  >
-                    {{ edu.degree || 'Título no especificado' }}
-                  </h4>
+                  <h3>{{ edu.institution || 'Institución no especificada' }}</h3>
+                  <h4>{{ edu.degree || 'Título no especificado' }}</h4>
                 </div>
-                <div
-                  class="cv-edu-right editable-field"
-                  @click.stop="
-                    openEditModal(
-                      `education_${index}_graduationDate`,
-                      edu.graduationDate,
-                      'Fecha de Graduación',
-                    )
-                  "
-                >
+                <div class="cv-edu-right">
                   {{ edu.graduationDate || 'Presente' }}
                 </div>
               </div>
@@ -169,12 +144,7 @@
                 class="cv-skill-item item-editable-wrapper"
                 @click="openEditDialog('skill', index)"
               >
-                <span
-                  class="editable-field skill-text"
-                  @click.stop="openEditModal(`skill_${index}`, skill, 'Habilidad')"
-                >
-                  • {{ skill }}
-                </span>
+                • {{ skill }}
               </span>
             </div>
           </div>
@@ -203,42 +173,18 @@
             >
               <div class="cv-exp-header">
                 <div class="cv-exp-left">
-                  <h3
-                    class="editable-field"
-                    @click.stop="openEditModal(`experience_${index}_position`, exp.position, 'Posición')"
-                  >
-                    {{ exp.position || 'Posición no especificada' }}
-                  </h3>
+                  <h3>{{ exp.position || 'Posición no especificada' }}</h3>
                 </div>
-                <div
-                  class="cv-exp-right editable-field"
-                  @click.stop="
-                    openEditModal(
-                      `experience_${index}_period`,
-                      `${exp.period?.start} - ${exp.period?.end}`,
-                      'Período',
-                    )
-                  "
-                >
+                <div class="cv-exp-right">
                   {{ exp.period?.start || 'Fecha inicio' }} - {{ exp.period?.end || 'Presente' }}
                 </div>
               </div>
               <ul v-if="exp.responsibilities?.length" class="cv-responsibilities">
-                <li
-                  v-for="(resp, i) in exp.responsibilities"
-                  :key="i"
-                  class="editable-field"
-                  @click.stop="openEditModal(`experience_${index}_resp_${i}`, resp, 'Responsabilidad')"
-                >
+                <li v-for="(resp, i) in exp.responsibilities" :key="i">
                   {{ resp }}
                 </li>
               </ul>
-              <div
-                class="cv-company editable-field"
-                @click.stop="openEditModal(`experience_${index}_company`, exp.company, 'Empresa')"
-              >
-                {{ exp.company || 'Empresa no especificada' }}
-              </div>
+              <div class="cv-company">{{ exp.company || 'Empresa no especificada' }}</div>
             </div>
           </div>
 
@@ -266,25 +212,10 @@
             >
               <div class="cv-cert-header">
                 <div class="cv-cert-left">
-                  <h3
-                    class="editable-field"
-                    @click.stop="
-                      openEditModal(`certification_${index}_name`, cert.name, 'Certificación')
-                    "
-                  >
-                    {{ cert.name || 'Certificación' }}
-                  </h3>
-                  <span
-                    v-if="cert.issuer"
-                    class="cv-cert-issuer editable-field"
-                    @click.stop="openEditModal(`certification_${index}_issuer`, cert.issuer, 'Emisor')"
-                    >{{ cert.issuer }}</span
-                  >
+                  <h3>{{ cert.name || 'Certificación' }}</h3>
+                  <span v-if="cert.issuer" class="cv-cert-issuer">{{ cert.issuer }}</span>
                 </div>
-                <div
-                  class="cv-cert-right editable-field"
-                  @click.stop="openEditModal(`certification_${index}_date`, cert.dateObtained, 'Fecha')"
-                >
+                <div class="cv-cert-right">
                   {{ cert.dateObtained || 'Fecha no especificada' }}
                 </div>
               </div>
@@ -313,36 +244,11 @@
               class="cv-project atomic-block item-editable-wrapper"
               @click="openEditDialog('project', index)"
             >
-              <h3
-                class="editable-field"
-                @click.stop="openEditModal(`project_${index}_name`, project.name, 'Nombre del Proyecto')"
-              >
-                {{ project.name || 'Proyecto' }}
-              </h3>
-              <p
-                v-if="project.description"
-                class="cv-project-description editable-field"
-                @click.stop="
-                  openEditModal(
-                    `project_${index}_description`,
-                    project.description,
-                    'Descripción del Proyecto',
-                  )
-                "
-              >
+              <h3>{{ project.name || 'Proyecto' }}</h3>
+              <p v-if="project.description" class="cv-project-description">
                 {{ project.description }}
               </p>
-              <p
-                v-if="project.technologies"
-                class="cv-project-tech editable-field"
-                @click.stop="
-                  openEditModal(
-                    `project_${index}_technologies`,
-                    Array.isArray(project.technologies) ? project.technologies.join(', ') : project.technologies,
-                    'Tecnologías',
-                  )
-                "
-              >
+              <p v-if="project.technologies" class="cv-project-tech">
                 Technologies: {{ Array.isArray(project.technologies) ? project.technologies.join(', ') : project.technologies }}
               </p>
             </div>
@@ -1949,35 +1855,7 @@ onMounted(() => {
   color: #000;
 }
 
-/* Editable Fields */
-.editable-field {
-  cursor: pointer;
-  transition: all 0.2s ease;
-  padding: 2px 4px;
-  border-radius: 3px;
-  position: relative;
-}
-
-/* Make project and experience fields inline to allow clicking the wrapper */
-.cv-project .editable-field,
-.cv-experience .editable-field {
-  display: inline-block;
-  max-width: fit-content;
-}
-
-.editable-field:hover {
-  background-color: rgba(16, 185, 129, 0.1);
-  transform: scale(1.02);
-}
-
-.editable-field:hover::after {
-  content: '✏️';
-  position: absolute;
-  top: -5px;
-  right: -5px;
-  font-size: 10px;
-  opacity: 0.7;
-}
+/* Editable Fields - Removed individual field editing */
 
 /* Edit Modal */
 .edit-modal-content {
@@ -2028,31 +1906,48 @@ onMounted(() => {
 /* Item Editable Wrapper Styles */
 .item-editable-wrapper {
   cursor: pointer;
-  transition: all 0.2s ease;
-  border-radius: 4px;
+  transition: all 0.25s ease;
+  border-radius: 6px;
   position: relative;
+  padding: 8px;
+  margin: -8px;
 }
 
 .item-editable-wrapper:hover {
-  background-color: rgba(59, 130, 246, 0.05);
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+  background-color: rgba(59, 130, 246, 0.08);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+  transform: translateY(-1px);
+}
+
+.item-editable-wrapper:active {
+  transform: translateY(0);
+  background-color: rgba(59, 130, 246, 0.12);
 }
 
 .item-editable-wrapper:hover::before {
   content: '\f040';
   font-family: 'primeicons';
   position: absolute;
-  top: 8px;
-  right: 8px;
-  font-size: 14px;
-  color: rgba(59, 130, 246, 0.7);
-  opacity: 0.8;
+  top: 12px;
+  right: 12px;
+  font-size: 16px;
+  color: rgba(59, 130, 246, 0.8);
+  opacity: 1;
   z-index: 1;
 }
 
-.skill-text {
-  display: inline-block;
-  width: 100%;
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .item-editable-wrapper {
+    padding: 12px;
+    margin: -12px;
+  }
+
+  .item-editable-wrapper:hover::before {
+    font-size: 18px;
+    top: 16px;
+    right: 16px;
+  }
 }
 
 /* Dialog Footer Styles */
@@ -2260,23 +2155,17 @@ onMounted(() => {
 
   .item-editable-wrapper {
     cursor: default !important;
+    padding: 0 !important;
+    margin: 0 !important;
   }
 
   .item-editable-wrapper:hover {
     background-color: transparent !important;
     box-shadow: none !important;
-  }
-
-  .item-editable-wrapper:hover::before {
-    display: none !important;
-  }
-
-  .editable-field:hover {
-    background-color: transparent !important;
     transform: none !important;
   }
 
-  .editable-field:hover::after {
+  .item-editable-wrapper:hover::before {
     display: none !important;
   }
 }
