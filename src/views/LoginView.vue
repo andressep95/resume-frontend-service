@@ -37,6 +37,7 @@ interface RegisterData {
   password: string
   first_name: string
   last_name: string
+  app_id: string
 }
 
 const router = useRouter()

@@ -6,7 +6,7 @@
           <i class="pi pi-lock forgot-icon"></i>
           <h2>¿Olvidaste tu contraseña?</h2>
           <p>Ingresa tu email y te enviaremos un enlace para resetear tu contraseña.</p>
-          
+
           <form @submit.prevent="handleForgotPassword" class="forgot-form">
             <div class="form-group">
               <InputText
@@ -19,12 +19,7 @@
               <small v-if="error" class="p-error">{{ error }}</small>
             </div>
 
-            <Button
-              type="submit"
-              label="Enviar enlace"
-              :loading="loading"
-              class="send-button"
-            />
+            <Button type="submit" label="Enviar enlace" :loading="loading" class="send-button" />
           </form>
 
           <div class="back-to-login">
@@ -55,34 +50,38 @@ const error = ref('')
 
 const handleForgotPassword = async () => {
   error.value = ''
-  
+
   if (!email.value.trim()) {
     error.value = 'El email es requerido'
     return
   }
-  
+
   if (!/\S+@\S+\.\S+/.test(email.value)) {
     error.value = 'Email inválido'
     return
   }
-  
+
   loading.value = true
-  
+
   try {
+    const appId = import.meta.env.VITE_APP_ID || '7057e69d-818b-45db-b39b-9d1c84aca142'
     const response = await fetch('https://auth.cloudcentinel.com/api/v1/auth/forgot-password', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ email: email.value })
+      body: JSON.stringify({
+        email: email.value,
+        app_id: appId,
+      }),
     })
-    
+
     if (response.ok) {
       toast.add({
         severity: 'success',
         summary: 'Email enviado',
         detail: 'Si el email existe, recibirás un enlace para resetear tu contraseña',
-        life: 5000
+        life: 5000,
       })
       router.push('/login')
     } else {
@@ -94,7 +93,7 @@ const handleForgotPassword = async () => {
       severity: 'error',
       summary: 'Error',
       detail: 'Error de conexión',
-      life: 5000
+      life: 5000,
     })
   } finally {
     loading.value = false

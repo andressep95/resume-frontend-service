@@ -96,7 +96,7 @@ const handleSubmit = async () => {
 
   loading.value = true
   try {
-    const appId = import.meta.env.VITE_APP_ID || '00000000-0000-0000-0000-000000000000'
+    const appId = import.meta.env.VITE_APP_ID || '7057e69d-818b-45db-b39b-9d1c84aca142'
     emit('login', {
       ...form,
       app_id: appId,

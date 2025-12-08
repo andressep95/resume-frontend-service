@@ -101,7 +101,7 @@ interface RegisterErrors {
 
 const emit = defineEmits<{
   switchToLogin: []
-  register: [data: Omit<RegisterForm, 'confirmPassword'>]
+  register: [data: Omit<RegisterForm, 'confirmPassword'> & { app_id: string }]
 }>()
 
 const form = reactive<RegisterForm>({
@@ -152,8 +152,12 @@ const handleSubmit = async () => {
 
   loading.value = true
   try {
+    const appId = import.meta.env.VITE_APP_ID || '7057e69d-818b-45db-b39b-9d1c84aca142'
     const { confirmPassword, ...registerData } = form
-    emit('register', registerData)
+    emit('register', {
+      ...registerData,
+      app_id: appId,
+    })
   } finally {
     loading.value = false
   }
