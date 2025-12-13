@@ -1451,6 +1451,9 @@ const downloadPDF = async () => {
       throw new Error('CV container not found')
     }
 
+    // Add class to hide interactive elements during PDF generation
+    element.classList.add('pdf-generating')
+
     // Generate filename
     const name = editableData.name || 'CV'
     const filename = `${name.replace(/\s+/g, '_')}_CV.pdf`
@@ -1479,6 +1482,9 @@ const downloadPDF = async () => {
     // Generate and download PDF
     await html2pdf().set(options).from(element).save()
 
+    // Remove the class after PDF generation
+    element.classList.remove('pdf-generating')
+
     toast.add({
       severity: 'success',
       summary: 'Éxito',
@@ -1487,6 +1493,11 @@ const downloadPDF = async () => {
     })
   } catch (error) {
     console.error('Error generating PDF:', error)
+    // Make sure to remove the class even if there's an error
+    const element = document.querySelector('.cv-container') as HTMLElement
+    if (element) {
+      element.classList.remove('pdf-generating')
+    }
     toast.add({
       severity: 'error',
       summary: 'Error',
@@ -2205,6 +2216,27 @@ onMounted(() => {
   100% {
     box-shadow: 0 0 0 0 rgba(255, 193, 7, 0);
   }
+}
+
+/* PDF Generation - Hide interactive elements */
+.cv-container.pdf-generating .add-section-button {
+  display: none !important;
+}
+
+.cv-container.pdf-generating .item-editable-wrapper {
+  cursor: default !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.cv-container.pdf-generating .item-editable-wrapper:hover {
+  background-color: transparent !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.cv-container.pdf-generating .item-editable-wrapper:hover::before {
+  display: none !important;
 }
 
 @media print {
