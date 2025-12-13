@@ -2253,6 +2253,27 @@ onMounted(() => {
   display: none !important;
 }
 
+/* Preserve specific spacing for CV sections during PDF generation */
+.cv-container.pdf-generating .cv-experience {
+  margin-bottom: 1.5rem !important;
+  padding: 0 !important;
+}
+
+.cv-container.pdf-generating .cv-education {
+  margin-bottom: 0.8rem !important;
+  padding: 0 !important;
+}
+
+.cv-container.pdf-generating .cv-certification {
+  margin-bottom: 0.8rem !important;
+  padding: 0 !important;
+}
+
+.cv-container.pdf-generating .cv-project {
+  margin-bottom: 1rem !important;
+  padding: 0 !important;
+}
+
 @media print {
   .cv-container {
     padding: 1rem;
@@ -2291,6 +2312,27 @@ onMounted(() => {
 
   .item-editable-wrapper:hover::before {
     display: none !important;
+  }
+
+  /* Preserve specific spacing for CV sections in print */
+  .cv-experience {
+    margin-bottom: 1.5rem !important;
+    padding: 0 !important;
+  }
+
+  .cv-education {
+    margin-bottom: 0.8rem !important;
+    padding: 0 !important;
+  }
+
+  .cv-certification {
+    margin-bottom: 0.8rem !important;
+    padding: 0 !important;
+  }
+
+  .cv-project {
+    margin-bottom: 1rem !important;
+    padding: 0 !important;
   }
 }
 
