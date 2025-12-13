@@ -27,9 +27,6 @@
           <Column field="original_filename" header="Archivo" sortable>
             <template #body="{ data }">
               <div class="filename-cell">
-                <i class="pi pi-file-pdf" v-if="data.original_filename?.endsWith('.pdf')"></i>
-                <i class="pi pi-file-word" v-else-if="data.original_filename?.endsWith('.docx')"></i>
-                <i class="pi pi-file" v-else></i>
                 <span>{{ data.original_filename || 'Sin nombre' }}</span>
               </div>
             </template>
@@ -49,8 +46,6 @@
               />
             </template>
           </Column>
-
-
 
           <Column field="created_at" header="Fecha" sortable>
             <template #body="{ data }">
@@ -129,7 +124,9 @@ const loadResumes = async () => {
     toast.add({
       severity: 'error',
       summary: 'Error del Servidor',
-      detail: errorMessage.includes('cv_name') ? 'Error en la base de datos. Contacte al administrador.' : errorMessage,
+      detail: errorMessage.includes('cv_name')
+        ? 'Error en la base de datos. Contacte al administrador.'
+        : errorMessage,
       life: 8000,
     })
   } finally {
