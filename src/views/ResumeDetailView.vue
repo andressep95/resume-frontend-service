@@ -1812,7 +1812,7 @@ onMounted(() => {
 
 /* Experience */
 .cv-experience {
-  margin-bottom: 1.4rem;
+  margin-bottom: 1.5rem;
 }
 
 .cv-exp-header {
