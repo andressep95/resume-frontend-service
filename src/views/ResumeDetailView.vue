@@ -249,7 +249,12 @@
                 {{ project.description }}
               </p>
               <p v-if="project.technologies" class="cv-project-tech">
-                Technologies: {{ Array.isArray(project.technologies) ? project.technologies.join(', ') : project.technologies }}
+                Technologies:
+                {{
+                  Array.isArray(project.technologies)
+                    ? project.technologies.join(', ')
+                    : project.technologies
+                }}
               </p>
             </div>
           </div>
@@ -365,7 +370,9 @@
                   : 'Agregar Proyecto'
       "
       modal
-      :style="{ width: addDialogType === 'experience' || addDialogType === 'project' ? '500px' : '400px' }"
+      :style="{
+        width: addDialogType === 'experience' || addDialogType === 'project' ? '500px' : '400px',
+      }"
     >
       <div class="add-modal-content">
         <!-- Education Fields -->
@@ -886,9 +893,8 @@ const openEditDialog = (type: string, index: number) => {
         periodStart: exp.period?.start || '',
         periodEnd: exp.period?.end || '',
       })
-      responsibilities.value = exp.responsibilities && exp.responsibilities.length > 0
-        ? [...exp.responsibilities]
-        : ['']
+      responsibilities.value =
+        exp.responsibilities && exp.responsibilities.length > 0 ? [...exp.responsibilities] : ['']
       break
     case 'certification':
       const cert = pendingStructuredData.value.certifications[index]
@@ -1044,8 +1050,8 @@ const saveNewItem = () => {
         break
 
       case 'skill':
-        pendingStructuredData.value.technicalSkills =
-          pendingStructuredData.value.technicalSkills || { skills: [] }
+        pendingStructuredData.value.technicalSkills = pendingStructuredData.value
+          .technicalSkills || { skills: [] }
         pendingStructuredData.value.technicalSkills.skills.push(newItemData.skill)
         break
 
@@ -1065,7 +1071,8 @@ const saveNewItem = () => {
         break
 
       case 'certification':
-        pendingStructuredData.value.certifications = pendingStructuredData.value.certifications || []
+        pendingStructuredData.value.certifications =
+          pendingStructuredData.value.certifications || []
         pendingStructuredData.value.certifications.push({
           name: newItemData.name,
           issuer: newItemData.issuer || '',
@@ -1187,14 +1194,16 @@ const saveEdit = () => {
 
       // Expresión Regular para el formato "MM YYYY - MM YYYY" o "MM YYYY - Presente/present"
       // Acepta mes numérico (01-12) o mes en texto (Jan, Feb, etc.)
-      const periodRegex = /^(?:(?:0?[1-9]|1[0-2])\s\d{4}|[A-Za-z]{3}\s\d{4})\s-\s(?:(?:0?[1-9]|1[0-2])\s\d{4}|[A-Za-z]{3}\s\d{4}|presente|present)$/i
+      const periodRegex =
+        /^(?:(?:0?[1-9]|1[0-2])\s\d{4}|[A-Za-z]{3}\s\d{4})\s-\s(?:(?:0?[1-9]|1[0-2])\s\d{4}|[A-Za-z]{3}\s\d{4}|presente|present)$/i
 
       // 1. **VALIDACIÓN** del formato
       if (!periodRegex.test(input)) {
         toast.add({
           severity: 'error',
           summary: 'Formato Inválido',
-          detail: 'Use el formato: "MM YYYY - MM YYYY" o "MM YYYY - Presente" (ej: "10 2024 - 02 2025")',
+          detail:
+            'Use el formato: "MM YYYY - MM YYYY" o "MM YYYY - Presente" (ej: "10 2024 - 02 2025")',
           life: 6000,
         })
         return
@@ -1262,7 +1271,10 @@ const saveEdit = () => {
       updatedStructuredData.projects[projectIndex].description = value
     } else if (fieldType === 'technologies') {
       // Convertir string separado por comas a array
-      const techArray = value.split(',').map((tech) => tech.trim()).filter((tech) => tech.length > 0)
+      const techArray = value
+        .split(',')
+        .map((tech) => tech.trim())
+        .filter((tech) => tech.length > 0)
       updatedStructuredData.projects[projectIndex].technologies = techArray
     }
   }
@@ -1739,7 +1751,9 @@ onMounted(() => {
 
 .add-section-button {
   opacity: 0.3;
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
 }
 
 .add-section-button:hover {
@@ -1798,7 +1812,7 @@ onMounted(() => {
 
 /* Experience */
 .cv-experience {
-  margin-bottom: 1.2rem;
+  margin-bottom: 1.4rem;
 }
 
 .cv-exp-header {
