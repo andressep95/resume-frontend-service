@@ -1471,8 +1471,9 @@ const downloadPDF = async () => {
     const filename = `${name.replace(/\s+/g, '_')}_CV.pdf`
 
     // PDF options with page break control
+    // Using larger top margin to match the visual appearance
     const options = {
-      margin: [10, 10, 10, 10] as [number, number, number, number],
+      margin: [20, 15, 15, 15] as [number, number, number, number],
       filename,
       image: { type: 'jpeg' as const, quality: 0.98 },
       html2canvas: {
@@ -2233,6 +2234,10 @@ onMounted(() => {
 }
 
 /* PDF Generation - Hide interactive elements */
+.cv-container.pdf-generating {
+  padding: 0 !important;
+}
+
 .cv-container.pdf-generating .add-section-button {
   display: none !important;
 }
