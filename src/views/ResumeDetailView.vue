@@ -312,6 +312,7 @@
       v-model:visible="showEditModal"
       :header="`Editar ${currentFieldLabel}`"
       modal
+      dismissableMask
       :style="{ width: '400px' }"
     >
       <div class="edit-modal-content">
@@ -370,6 +371,7 @@
                   : 'Agregar Proyecto'
       "
       modal
+      dismissableMask
       :style="{
         width: addDialogType === 'experience' || addDialogType === 'project' ? '500px' : '400px',
       }"
@@ -445,15 +447,17 @@
               />
             </div>
             <div class="field">
-              <label>Fin</label>
-              <div class="graduation-date-row">
-                <Checkbox
-                  v-model="newItemData.isPeriodEndPresente"
-                  :binary="true"
-                  inputId="isPeriodEndPresente"
-                  @update:modelValue="onPeriodEndPresenteToggle"
-                />
-                <label for="isPeriodEndPresente" class="presente-checkbox-label">Presente</label>
+              <div class="label-with-checkbox">
+                <label>Fin</label>
+                <div class="inline-checkbox">
+                  <Checkbox
+                    v-model="newItemData.isPeriodEndPresente"
+                    :binary="true"
+                    inputId="isPeriodEndPresente"
+                    @update:modelValue="onPeriodEndPresenteToggle"
+                  />
+                  <label for="isPeriodEndPresente" class="presente-checkbox-label">Presente</label>
+                </div>
               </div>
               <DatePicker
                 v-if="!newItemData.isPeriodEndPresente"
@@ -2092,6 +2096,18 @@ onMounted(() => {
   align-items: center;
   gap: 0.5rem;
   margin-bottom: 0.5rem;
+}
+
+.label-with-checkbox {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.inline-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
 }
 
 .presente-checkbox-label {
