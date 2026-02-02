@@ -396,7 +396,9 @@
                 inputId="isPresente"
                 @update:modelValue="onPresenteToggle"
               />
-              <label for="isPresente" class="presente-checkbox-label">Presente (cursando actualmente)</label>
+              <label for="isPresente" class="presente-checkbox-label"
+                >Presente (cursando actualmente)</label
+              >
             </div>
             <DatePicker
               v-if="!newItemData.isPresente"
@@ -515,10 +517,6 @@
           <div class="field">
             <label for="certName">Nombre *</label>
             <InputText id="certName" v-model="newItemData.name" class="w-full" />
-          </div>
-          <div class="field">
-            <label for="issuer">Emisor</label>
-            <InputText id="issuer" v-model="newItemData.issuer" class="w-full" />
           </div>
           <div class="field">
             <label>Fecha de Obtención</label>
@@ -891,7 +889,13 @@ const openAddDialog = (type: string) => {
   // Reset newItemData based on type
   switch (type) {
     case 'education':
-      Object.assign(newItemData, { institution: '', degree: '', graduationDate: '', graduationDateRaw: null, isPresente: false })
+      Object.assign(newItemData, {
+        institution: '',
+        degree: '',
+        graduationDate: '',
+        graduationDateRaw: null,
+        isPresente: false,
+      })
       break
     case 'skill':
       Object.assign(newItemData, { skill: '' })
@@ -1005,7 +1009,9 @@ const onPresenteToggle = (checked: boolean) => {
   }
 }
 
-const formatDateFromPicker = (value: Date | Date[] | (Date | null)[] | null | undefined): string => {
+const formatDateFromPicker = (
+  value: Date | Date[] | (Date | null)[] | null | undefined,
+): string => {
   const date = value instanceof Date ? value : null
   if (!date) return ''
   const month = String(date.getMonth() + 1).padStart(2, '0')
