@@ -2103,7 +2103,7 @@ onMounted(() => {
 .label-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 0.75rem;
   min-height: 1.75rem;
 }
 
