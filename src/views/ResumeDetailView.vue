@@ -431,21 +431,41 @@
           </div>
           <div class="field-row">
             <div class="field">
-              <label for="periodStart">Inicio</label>
-              <InputText
-                id="periodStart"
-                v-model="newItemData.periodStart"
-                placeholder="MM YYYY"
+              <label>Inicio</label>
+              <DatePicker
+                v-model="newItemData.periodStartRaw"
+                view="month"
+                dateFormat="mm/yy"
+                :maxDate="new Date()"
+                placeholder="Seleccione mes y año"
                 class="w-full"
+                showIcon
+                :manualInput="false"
+                @update:modelValue="onPeriodStartChange"
               />
             </div>
             <div class="field">
-              <label for="periodEnd">Fin</label>
-              <InputText
-                id="periodEnd"
-                v-model="newItemData.periodEnd"
-                placeholder="MM YYYY o Presente"
+              <label>Fin</label>
+              <div class="graduation-date-row">
+                <Checkbox
+                  v-model="newItemData.isPeriodEndPresente"
+                  :binary="true"
+                  inputId="isPeriodEndPresente"
+                  @update:modelValue="onPeriodEndPresenteToggle"
+                />
+                <label for="isPeriodEndPresente" class="presente-checkbox-label">Presente</label>
+              </div>
+              <DatePicker
+                v-if="!newItemData.isPeriodEndPresente"
+                v-model="newItemData.periodEndRaw"
+                view="month"
+                dateFormat="mm/yy"
+                :maxDate="new Date()"
+                placeholder="Seleccione mes y año"
                 class="w-full"
+                showIcon
+                :manualInput="false"
+                @update:modelValue="onPeriodEndChange"
               />
             </div>
           </div>
@@ -495,12 +515,17 @@
             <InputText id="issuer" v-model="newItemData.issuer" class="w-full" />
           </div>
           <div class="field">
-            <label for="dateObtained">Fecha de Obtención</label>
-            <InputText
-              id="dateObtained"
-              v-model="newItemData.dateObtained"
-              placeholder="MM YYYY"
+            <label>Fecha de Obtención</label>
+            <DatePicker
+              v-model="newItemData.dateObtainedRaw"
+              view="month"
+              dateFormat="mm/yy"
+              :maxDate="new Date()"
+              placeholder="Seleccione mes y año"
               class="w-full"
+              showIcon
+              :manualInput="false"
+              @update:modelValue="onDateObtainedChange"
             />
           </div>
         </template>
@@ -870,11 +895,14 @@ const openAddDialog = (type: string) => {
         company: '',
         periodStart: '',
         periodEnd: '',
+        periodStartRaw: null,
+        periodEndRaw: null,
+        isPeriodEndPresente: false,
       })
       responsibilities.value = ['']
       break
     case 'certification':
-      Object.assign(newItemData, { name: '', issuer: '', dateObtained: '' })
+      Object.assign(newItemData, { name: '', issuer: '', dateObtained: '', dateObtainedRaw: null })
       break
     case 'project':
       Object.assign(newItemData, { name: '', description: '', technologies: '' })
@@ -907,11 +935,15 @@ const openEditDialog = (type: string, index: number) => {
       break
     case 'experience':
       const exp = pendingStructuredData.value.professionalExperience[index]
+      const isPeriodEndPresente = (exp.period?.end || '').toLowerCase() === 'presente'
       Object.assign(newItemData, {
         position: exp.position || '',
         company: exp.company || '',
         periodStart: exp.period?.start || '',
         periodEnd: exp.period?.end || '',
+        periodStartRaw: parseGraduationDate(exp.period?.start || ''),
+        periodEndRaw: isPeriodEndPresente ? null : parseGraduationDate(exp.period?.end || ''),
+        isPeriodEndPresente,
       })
       responsibilities.value =
         exp.responsibilities && exp.responsibilities.length > 0 ? [...exp.responsibilities] : ['']
@@ -922,6 +954,7 @@ const openEditDialog = (type: string, index: number) => {
         name: cert.name || '',
         issuer: cert.issuer || '',
         dateObtained: cert.dateObtained || '',
+        dateObtainedRaw: parseGraduationDate(cert.dateObtained || ''),
       })
       break
     case 'project':
@@ -963,6 +996,34 @@ const onPresenteToggle = (checked: boolean) => {
   } else {
     newItemData.graduationDate = ''
   }
+}
+
+const formatDateFromPicker = (value: Date | Date[] | (Date | null)[] | null | undefined): string => {
+  const date = value instanceof Date ? value : null
+  if (!date) return ''
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  return `${month} ${date.getFullYear()}`
+}
+
+const onPeriodStartChange = (value: Date | Date[] | (Date | null)[] | null | undefined) => {
+  newItemData.periodStart = formatDateFromPicker(value)
+}
+
+const onPeriodEndChange = (value: Date | Date[] | (Date | null)[] | null | undefined) => {
+  newItemData.periodEnd = formatDateFromPicker(value)
+}
+
+const onPeriodEndPresenteToggle = (checked: boolean) => {
+  if (checked) {
+    newItemData.periodEnd = 'Presente'
+    newItemData.periodEndRaw = null
+  } else {
+    newItemData.periodEnd = ''
+  }
+}
+
+const onDateObtainedChange = (value: Date | Date[] | (Date | null)[] | null | undefined) => {
+  newItemData.dateObtained = formatDateFromPicker(value)
 }
 
 const parseGraduationDate = (dateStr: string): Date | null => {
