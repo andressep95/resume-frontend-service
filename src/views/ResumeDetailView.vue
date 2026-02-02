@@ -941,7 +941,8 @@ const isToday = (date: Date): boolean => {
   return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear()
 }
 
-const onGraduationDateChange = (date: Date | null) => {
+const onGraduationDateChange = (value: Date | Date[] | (Date | null)[] | null | undefined) => {
+  const date = value instanceof Date ? value : null
   if (!date) {
     newItemData.graduationDate = ''
     return
@@ -961,8 +962,8 @@ const parseGraduationDate = (dateStr: string): Date | null => {
   }
   const parts = dateStr.trim().split(/\s+/)
   if (parts.length === 2) {
-    const month = parseInt(parts[0]) - 1
-    const year = parseInt(parts[1])
+    const month = parseInt(parts[0]!) - 1
+    const year = parseInt(parts[1]!)
     if (!isNaN(month) && !isNaN(year)) {
       return new Date(year, month, 1)
     }
