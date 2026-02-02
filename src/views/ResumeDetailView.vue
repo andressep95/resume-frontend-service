@@ -386,9 +386,18 @@
             <InputText id="degree" v-model="newItemData.degree" class="w-full" />
           </div>
           <div class="field">
-            <label for="graduationDate">Fecha de Graduación</label>
+            <label>Fecha de Graduación</label>
+            <div class="graduation-date-row">
+              <Checkbox
+                v-model="newItemData.isPresente"
+                :binary="true"
+                inputId="isPresente"
+                @update:modelValue="onPresenteToggle"
+              />
+              <label for="isPresente" class="presente-checkbox-label">Presente (cursando actualmente)</label>
+            </div>
             <DatePicker
-              id="graduationDate"
+              v-if="!newItemData.isPresente"
               v-model="newItemData.graduationDateRaw"
               view="month"
               dateFormat="mm/yy"
@@ -396,11 +405,9 @@
               placeholder="Seleccione mes y año"
               class="w-full"
               showIcon
+              :manualInput="false"
               @update:modelValue="onGraduationDateChange"
             />
-            <small v-if="newItemData.graduationDateRaw && isToday(newItemData.graduationDateRaw)" class="present-label">
-              Se marcará como "Presente"
-            </small>
           </div>
         </template>
 
@@ -695,6 +702,7 @@ import Textarea from 'primevue/textarea'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import DatePicker from 'primevue/datepicker'
+import Checkbox from 'primevue/checkbox'
 import { resumeApi } from '../services/resumeApi'
 
 const route = useRoute()
@@ -851,7 +859,7 @@ const openAddDialog = (type: string) => {
   // Reset newItemData based on type
   switch (type) {
     case 'education':
-      Object.assign(newItemData, { institution: '', degree: '', graduationDate: '', graduationDateRaw: null })
+      Object.assign(newItemData, { institution: '', degree: '', graduationDate: '', graduationDateRaw: null, isPresente: false })
       break
     case 'skill':
       Object.assign(newItemData, { skill: '' })
@@ -884,11 +892,13 @@ const openEditDialog = (type: string, index: number) => {
   switch (type) {
     case 'education':
       const edu = pendingStructuredData.value.education[index]
+      const isPresente = (edu.graduationDate || '').toLowerCase() === 'presente'
       Object.assign(newItemData, {
         institution: edu.institution || '',
         degree: edu.degree || '',
         graduationDate: edu.graduationDate || '',
-        graduationDateRaw: parseGraduationDate(edu.graduationDate || ''),
+        graduationDateRaw: isPresente ? null : parseGraduationDate(edu.graduationDate || ''),
+        isPresente,
       })
       break
     case 'skill':
@@ -935,24 +945,23 @@ const closeAddDialog = () => {
   Object.keys(newItemData).forEach((key) => delete newItemData[key])
 }
 
-const isToday = (date: Date): boolean => {
-  if (!date) return false
-  const now = new Date()
-  return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear()
-}
-
 const onGraduationDateChange = (value: Date | Date[] | (Date | null)[] | null | undefined) => {
   const date = value instanceof Date ? value : null
   if (!date) {
     newItemData.graduationDate = ''
     return
   }
-  if (isToday(date)) {
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const year = date.getFullYear()
+  newItemData.graduationDate = `${month} ${year}`
+}
+
+const onPresenteToggle = (checked: boolean) => {
+  if (checked) {
     newItemData.graduationDate = 'Presente'
+    newItemData.graduationDateRaw = null
   } else {
-    const month = String(date.getMonth() + 1).padStart(2, '0')
-    const year = date.getFullYear()
-    newItemData.graduationDate = `${month} ${year}`
+    newItemData.graduationDate = ''
   }
 }
 
@@ -2017,10 +2026,18 @@ onMounted(() => {
   width: 100%;
 }
 
-.present-label {
-  color: var(--green-600);
-  font-weight: 600;
-  margin-top: 0.25rem;
+.graduation-date-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.presente-checkbox-label {
+  font-weight: normal !important;
+  font-size: 0.875rem;
+  cursor: pointer;
+  color: var(--text-color);
 }
 
 /* Responsibilities List Styles */
