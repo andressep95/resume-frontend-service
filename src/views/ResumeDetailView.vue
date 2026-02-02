@@ -431,9 +431,11 @@
             <label for="company">Empresa *</label>
             <InputText id="company" v-model="newItemData.company" class="w-full" />
           </div>
-          <div class="field-row">
+          <div class="field-row field-row-aligned">
             <div class="field">
-              <label>Inicio</label>
+              <div class="label-row">
+                <label>Inicio</label>
+              </div>
               <DatePicker
                 v-model="newItemData.periodStartRaw"
                 view="month"
@@ -447,7 +449,7 @@
               />
             </div>
             <div class="field">
-              <div class="label-with-checkbox">
+              <div class="label-row">
                 <label>Fin</label>
                 <div class="inline-checkbox">
                   <Checkbox
@@ -2098,16 +2100,26 @@ onMounted(() => {
   margin-bottom: 0.5rem;
 }
 
-.label-with-checkbox {
+.label-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  min-height: 1.75rem;
 }
 
 .inline-checkbox {
   display: flex;
   align-items: center;
   gap: 0.35rem;
+}
+
+.field-row-aligned > .field {
+  display: flex;
+  flex-direction: column;
+}
+
+.field-row-aligned > .field > .label-row {
+  flex-shrink: 0;
 }
 
 .presente-checkbox-label {
