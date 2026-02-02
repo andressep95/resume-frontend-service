@@ -387,12 +387,20 @@
           </div>
           <div class="field">
             <label for="graduationDate">Fecha de Graduación</label>
-            <InputText
+            <DatePicker
               id="graduationDate"
-              v-model="newItemData.graduationDate"
-              placeholder="MM YYYY o Presente"
+              v-model="newItemData.graduationDateRaw"
+              view="month"
+              dateFormat="mm/yy"
+              :maxDate="new Date()"
+              placeholder="Seleccione mes y año"
               class="w-full"
+              showIcon
+              @update:modelValue="onGraduationDateChange"
             />
+            <small v-if="newItemData.graduationDateRaw && isToday(newItemData.graduationDateRaw)" class="present-label">
+              Se marcará como "Presente"
+            </small>
           </div>
         </template>
 
@@ -686,6 +694,7 @@ import InputText from 'primevue/inputtext'
 import Textarea from 'primevue/textarea'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
+import DatePicker from 'primevue/datepicker'
 import { resumeApi } from '../services/resumeApi'
 
 const route = useRoute()
@@ -842,7 +851,7 @@ const openAddDialog = (type: string) => {
   // Reset newItemData based on type
   switch (type) {
     case 'education':
-      Object.assign(newItemData, { institution: '', degree: '', graduationDate: '' })
+      Object.assign(newItemData, { institution: '', degree: '', graduationDate: '', graduationDateRaw: null })
       break
     case 'skill':
       Object.assign(newItemData, { skill: '' })
@@ -879,6 +888,7 @@ const openEditDialog = (type: string, index: number) => {
         institution: edu.institution || '',
         degree: edu.degree || '',
         graduationDate: edu.graduationDate || '',
+        graduationDateRaw: parseGraduationDate(edu.graduationDate || ''),
       })
       break
     case 'skill':
@@ -923,6 +933,41 @@ const closeAddDialog = () => {
   editingIndex.value = -1
   responsibilities.value = []
   Object.keys(newItemData).forEach((key) => delete newItemData[key])
+}
+
+const isToday = (date: Date): boolean => {
+  if (!date) return false
+  const now = new Date()
+  return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear()
+}
+
+const onGraduationDateChange = (date: Date | null) => {
+  if (!date) {
+    newItemData.graduationDate = ''
+    return
+  }
+  if (isToday(date)) {
+    newItemData.graduationDate = 'Presente'
+  } else {
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const year = date.getFullYear()
+    newItemData.graduationDate = `${month} ${year}`
+  }
+}
+
+const parseGraduationDate = (dateStr: string): Date | null => {
+  if (!dateStr || dateStr.toLowerCase() === 'presente') {
+    return dateStr?.toLowerCase() === 'presente' ? new Date() : null
+  }
+  const parts = dateStr.trim().split(/\s+/)
+  if (parts.length === 2) {
+    const month = parseInt(parts[0]) - 1
+    const year = parseInt(parts[1])
+    if (!isNaN(month) && !isNaN(year)) {
+      return new Date(year, month, 1)
+    }
+  }
+  return null
 }
 
 const addResponsibility = () => {
@@ -1969,6 +2014,12 @@ onMounted(() => {
 
 .w-full {
   width: 100%;
+}
+
+.present-label {
+  color: var(--green-600);
+  font-weight: 600;
+  margin-top: 0.25rem;
 }
 
 /* Responsibilities List Styles */
