@@ -795,7 +795,8 @@ const loadResumeDetail = async () => {
     editableData.phone = resume.value.structured_data?.header?.contact?.phone || ''
     editableData.address = resume.value.structured_data?.header?.contact?.address || ''
 
-    // Initialize pending data with current structured data
+    // Sort and initialize pending data with current structured data
+    sortByDateDescending(resume.value.structured_data)
     pendingStructuredData.value = JSON.parse(JSON.stringify(resume.value.structured_data))
     hasPendingChanges.value = false
 
@@ -1047,6 +1048,50 @@ const parseGraduationDate = (dateStr: string): Date | null => {
   return null
 }
 
+const parseDateString = (dateStr: string | undefined): number => {
+  if (!dateStr || dateStr.toLowerCase() === 'presente' || dateStr.toLowerCase() === 'present') {
+    return Infinity // "Presente" goes first in descending order
+  }
+  const parts = dateStr.trim().split(/\s+/)
+  if (parts.length === 2) {
+    const month = parseInt(parts[0]!)
+    const year = parseInt(parts[1]!)
+    if (!isNaN(month) && !isNaN(year)) {
+      return year * 100 + month
+    }
+  }
+  return 0
+}
+
+const sortByDateDescending = (data: any) => {
+  if (!data) return data
+
+  // Sort education by graduationDate descending
+  if (Array.isArray(data.education)) {
+    data.education.sort((a: any, b: any) => {
+      return parseDateString(b.graduationDate) - parseDateString(a.graduationDate)
+    })
+  }
+
+  // Sort professional experience by period.end descending (then by period.start)
+  if (Array.isArray(data.professionalExperience)) {
+    data.professionalExperience.sort((a: any, b: any) => {
+      const endDiff = parseDateString(b.period?.end) - parseDateString(a.period?.end)
+      if (endDiff !== 0) return endDiff
+      return parseDateString(b.period?.start) - parseDateString(a.period?.start)
+    })
+  }
+
+  // Sort certifications by dateObtained descending
+  if (Array.isArray(data.certifications)) {
+    data.certifications.sort((a: any, b: any) => {
+      return parseDateString(b.dateObtained) - parseDateString(a.dateObtained)
+    })
+  }
+
+  return data
+}
+
 const addResponsibility = () => {
   responsibilities.value.push('')
 }
@@ -1216,7 +1261,8 @@ const saveNewItem = () => {
     }
   }
 
-  // Update resume display
+  // Sort and update resume display
+  sortByDateDescending(pendingStructuredData.value)
   resume.value.structured_data = pendingStructuredData.value
   hasPendingChanges.value = true
 
@@ -1401,7 +1447,8 @@ const saveEdit = () => {
     }
   }
 
-  // Update local data and mark as pending
+  // Sort, update local data and mark as pending
+  sortByDateDescending(updatedStructuredData)
   resume.value.structured_data = updatedStructuredData
   pendingStructuredData.value = updatedStructuredData
   hasPendingChanges.value = true
@@ -1428,6 +1475,10 @@ const saveAllChanges = async () => {
   }
 
   try {
+    // Sort all date-based sections before saving
+    sortByDateDescending(pendingStructuredData.value)
+    resume.value.structured_data = pendingStructuredData.value
+
     console.log('🔄 Creando nueva versión con todos los cambios:', pendingStructuredData.value)
 
     await resumeApi.createVersion(
